@@ -10,8 +10,7 @@ constructor(){
     }
 
     animate(){
-        setInterval(()=>{
-        this.x -= 0.25;
-        },1000/60) // 60 fps;
+        this.moveLeft();
     }
+
 }
