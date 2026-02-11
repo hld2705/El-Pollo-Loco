@@ -9,6 +9,9 @@ constructor(){
     this.animate();
     }
 
+    /**
+     * moving with a constant speed to the left, being spawned with the Math.random() function on the x-achsis
+     */
     animate(){
         this.moveLeft();
     }

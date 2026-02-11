@@ -17,11 +17,14 @@ class Chicken extends MovableObject {
         this.animate();
     }
 
+    /**
+     * needed to animate the chickens going left at a constant speed, being spawned by the Math.random() method 
+     */
     animate() {
         setInterval(() => {
             this.moveLeft();
         }, 1000 / 60)
-        
+
         setInterval(() => {
             this.playAnimation(this.IMAGES_WALKING);
         }, 200);

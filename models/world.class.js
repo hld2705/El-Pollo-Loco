@@ -10,7 +10,7 @@ class World {
     statusBarCoin = new StatusBarCoin();
     statusBarFlask = new StatusBarFlask();
     throwableObjects = [];
-    
+
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas; // sa ovim se onda uvodi u pricu nova varijabla imena canvas
@@ -20,27 +20,28 @@ class World {
         this.run();
     }
 
-    run(){
-        setInterval(()=>{
+
+    run() {
+        setInterval(() => {
             this.checkCollisions();
             this.checkThrowableObjects();
-        },200);
+        }, 200);
     }
 
-    checkThrowableObjects(){
-        if(this.keyboard.SPACE){
+    checkThrowableObjects() {
+        if (this.keyboard.SPACE) {
             let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100)
             this.throwableObjects.push(bottle);
         }
     }
 
-    checkCollisions(){
-        this.level.enemies.forEach((enemy)=>{
-               if(this.character.isColliding(enemy)){
-                    this.character.hit();
-                    this.statusBar.setPercentage(this.character.energy);
-               }
-            });
+    checkCollisions() {
+        this.level.enemies.forEach((enemy) => {
+            if (this.character.isColliding(enemy)) {
+                this.character.hit();
+                this.statusBar.setPercentage(this.character.energy);
+            }
+        });
     }
 
     setWorld() {
@@ -81,7 +82,7 @@ class World {
         if (mo.otherDirection) {
             this.flipImage(mo);
         }
-        
+
         mo.draw(this.ctx);
         mo.drawFrame(this.ctx);
 

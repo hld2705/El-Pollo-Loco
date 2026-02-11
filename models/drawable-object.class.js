@@ -7,17 +7,24 @@ class DrawableObject {
     height = 150;
     width = 100;
 
-
     //loadImage('img/test.png')
-    loadImage(path){
+    loadImage(path) {
         this.img = new Image(); // this.img = document.getElementById('image') ili isto sto i <img id="image" src="...">
         this.img.src = path;
     }
 
-     draw(ctx){
-       ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
+    /**
+     * 
+     * @param {canvas} ctx main function for drawing all the characters on the map 
+     */
+    draw(ctx) {
+        ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
     }
 
+    /**
+     * 
+     * @param {asda} ctx can be deleted, used for detecting collisions
+     */
     drawFrame(ctx) {
         if (this instanceof Character || this instanceof Chicken) { // instanceof se odnosi SAMO I SAMO na Character i Chicken u ovom slucaju
             ctx.beginPath();
@@ -27,16 +34,17 @@ class DrawableObject {
             ctx.stroke();
         }
     }
-    
-      /**
-     * 
-     * @param {Array} arr  ['img/image1.png', 'img/image2.png', ...]
-     */
-    loadImages(arr){
+
+    /**
+   * 
+   * @param {Array} arr  ['img/image1.png', 'img/image2.png', ...]
+   */
+    loadImages(arr) {
         arr.forEach(path => {
-        let img = new Image();
-        img.src = path;
-        this.imageCache[path] = img;
-         });
+            let img = new Image();
+            img.src = path;
+            this.imageCache[path] = img;
+        });
     }
+
 }

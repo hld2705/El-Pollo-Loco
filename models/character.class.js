@@ -59,17 +59,24 @@ class Character extends MovableObject {
         this.animate();
     }
 
-   audioCharacter() {
-    this.audioWalk = new Audio('audio/crunchy_walk.wav');
-    this.audioJump = new Audio('audio/crunchy_jump.mp3');
-    this.audioWalk.volume = 0.2;
-    //this.audioJump.volume = 0.5;
-}
+    /**
+     * function needed for the character sounds 
+     */
+    audioCharacter() {
+        this.audioWalk = new Audio('audio/crunchy_walk.wav');
+        this.audioJump = new Audio('audio/crunchy_jump.mp3');
+        this.audioWalk.volume = 0.2;
+        //this.audioJump.volume = 0.5;
+    }
 
+    /**
+     * function for animating the character in the right way, all the pictures and also the functionalities are being displayed 
+     * in 60 fps i.e 1000/60
+     */
     animate() {
         setInterval(() => {
             this.audioWalk.pause();
-            this.audioJump.pause(); 
+            this.audioJump.pause();
             if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
                 this.moveRight();
                 this.otherDirection = false;
@@ -80,17 +87,16 @@ class Character extends MovableObject {
                 this.otherDirection = true;
                 //this.audioWalk.play();
             }
-            if(this.world.keyboard.UP && !this.isAboveGround()){
+            if (this.world.keyboard.UP && !this.isAboveGround()) {
                 this.jump();
                 this.audioJump.play();
-            } 
+            }
             this.world.camera_x = -this.x + 100;
         }, 1000 / 60);
-
         setInterval(() => {
-            if(this.isDead()){
+            if (this.isDead()) {
                 this.playAnimation(this.IMAGES_DEAD);
-            } else if(this.isHurt()){
+            } else if (this.isHurt()) {
                 this.playAnimation(this.IMAGES_HURT);
             }
             else if (this.isAboveGround()) {
@@ -103,6 +109,9 @@ class Character extends MovableObject {
         }, 100);
     }
 
+    /**
+     * setting the speed on the Y achis to 25 making the character "jump"
+     */
     jump() {
         this.speedY = 25;
     }

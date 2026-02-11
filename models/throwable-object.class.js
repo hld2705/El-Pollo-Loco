@@ -1,7 +1,7 @@
-class ThrowableObject extends MovableObject{
+class ThrowableObject extends MovableObject {
 
 
-    constructor(x, y){
+    constructor(x, y) {
         super().loadImage('img/6_salsa_bottle/salsa_bottle.png');
         this.x = x;
         this.y = y;
@@ -10,13 +10,15 @@ class ThrowableObject extends MovableObject{
         this.throw();
     }
 
-
-    throw(){
+    /**
+     * changing the interval of the x achsis and registering the applyGravity function
+     */
+    throw() {
         this.speedY = 30;
         this.applyGravity();
-        setInterval(()=>{
+        setInterval(() => {
             this.x += 10;
         }, 25);
     }
-    
+
 }
