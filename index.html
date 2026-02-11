@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>El Pollo Loco</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sancreek&display=swap" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
     <script src="/models/drawable-object.class.js"></script>
     <script src="/models/movable-object.class.js"></script>
@@ -20,13 +24,17 @@
     <script src="/models/throwable-object.class.js"></script>
     <script src="/models/endboss.class.js"></script>
     <script src="/levels/level1.js"></script>
+    <script src="templates/generaltemplate.js"></script>
+    <script src="/models/menu.class.js"></script>
     <script src="/js/game.js"></script>
 </head>
+
 <body onload="init()">
     <h1>El pollo loco</h1>
-
     <canvas id="canvas" width="720" height="480">
-
+        <img class="background-picture" src="img/background desert.jpg">
     </canvas>
+     <div id="loadingscreen"></div>
 </body>
+
 </html>
