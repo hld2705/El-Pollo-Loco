@@ -74,7 +74,7 @@ class Character extends MovableObject {
      * in 60 fps i.e 1000/60
      */
     animate() {
-        setInterval(() => {
+        this.moveInterval = setInterval(() => {
             this.audioWalk.pause();
             this.audioJump.pause();
             if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
@@ -93,7 +93,7 @@ class Character extends MovableObject {
             }
             this.world.camera_x = -this.x + 100;
         }, 1000 / 60);
-        setInterval(() => {
+       this.animationInterval = setInterval(() => {
             if (this.isDead()) {
                 this.playAnimation(this.IMAGES_DEAD);
             } else if (this.isHurt()) {
@@ -107,6 +107,11 @@ class Character extends MovableObject {
                 }
             }
         }, 100);
+    }
+
+    stop() {
+        clearInterval(this.moveInterval);
+        clearInterval(this.animationInterval);
     }
 
     /**

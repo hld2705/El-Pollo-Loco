@@ -22,11 +22,15 @@ class World {
 
 
     run() {
-        setInterval(() => {
+        this.interval = setInterval(() => {
             this.checkCollisions();
             this.checkThrowableObjects();
         }, 200);
     }
+
+    stop() {
+    clearInterval(this.interval);
+}
 
     checkThrowableObjects() {
         if (this.keyboard.SPACE) {

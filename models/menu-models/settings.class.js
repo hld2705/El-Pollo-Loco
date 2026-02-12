@@ -87,7 +87,7 @@ class Settings extends Menu {
     toggleFullscreen() {
         if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen();
-        } else {document.exitFullscreen();}
+        } else { document.exitFullscreen(); }
     }
 
     /**

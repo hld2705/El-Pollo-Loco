@@ -5,9 +5,14 @@ class Menu {
     this.y = canvas.height / 2;
     this.bgImage = new Image();
     this.bgImage.src = "img/9_intro_outro_screens/start/startscreen_2.png";
+    this.clickHandler = (e) => this.handleClick(e);
     canvas.addEventListener("click", (e) => this.handleClick(e));
   }
 
+
+  destroy() {
+    this.canvas.removeEventListener("click", this.clickHandler);
+  }
   /**
    * 
    * @param {canvas} ctx draws the circle in which the commands are contained
@@ -41,11 +46,13 @@ class Menu {
     const mouseY = e.clientY - rect.top;
     // PLAY
     if (mouseY > this.y + 20 && mouseY < this.y + 60) {
+      this.destroy();
       showMenu = false;
       world = new World(canvas, keyboard);
     }
     // SETTINGS
     if (mouseX > this.x - 100 && mouseX < this.x + 100 && mouseY > this.y - 55 && mouseY < this.y - 25) {
+      this.destroy();
       menu = new Settings(this.canvas);
     }
     if (mouseX > this.x - 100 && mouseX < this.x + 100 && mouseY > this.y - 10 && mouseY < this.y + 10) {
