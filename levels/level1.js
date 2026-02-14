@@ -32,6 +32,12 @@ const level1 = new Level(
         new BackgroundObject('img/5_background/layers/3_third_layer/1.png', 719*2),
         new BackgroundObject('img/5_background/layers/2_second_layer/1.png', 719*2),
         new BackgroundObject('img/5_background/layers/1_first_layer/1.png', 719*2),
-
+    ],
+    [
+        new PickableBottle(300, 400),
+        new PickableBottle(600, 400),
+        new PickableBottle(900, 400),
+        new PickableBottle(1200, 400),
+        new PickableBottle(1500, 400)
     ]
 );

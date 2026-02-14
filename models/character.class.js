@@ -2,6 +2,7 @@ class Character extends MovableObject {
     height = 250;
     y = 95; // 195
     speed = 10;
+    bottleCount = 0;
     IMAGES_WALKING = [
         'img/2_character_pepe/2_walk/W-21.png',
         'img/2_character_pepe/2_walk/W-22.png',
@@ -56,7 +57,6 @@ class Character extends MovableObject {
         this.loadImages(this.IMAGES_HURT);
         this.applyGravity();
         this.audioCharacter();
-        this.animate();
     }
 
     /**
@@ -73,45 +73,39 @@ class Character extends MovableObject {
      * function for animating the character in the right way, all the pictures and also the functionalities are being displayed 
      * in 60 fps i.e 1000/60
      */
-    animate() {
-        this.moveInterval = setInterval(() => {
-            this.audioWalk.pause();
-            this.audioJump.pause();
-            if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
-                this.moveRight();
-                this.otherDirection = false;
-                //this.audioWalk.play();
-            }
-            if (this.world.keyboard.LEFT && this.x > 0) {
-                this.moveLeft();
-                this.otherDirection = true;
-                //this.audioWalk.play();
-            }
-            if (this.world.keyboard.UP && !this.isAboveGround()) {
-                this.jump();
-                this.audioJump.play();
-            }
-            this.world.camera_x = -this.x + 100;
-        }, 1000 / 60);
-       this.animationInterval = setInterval(() => {
-            if (this.isDead()) {
-                this.playAnimation(this.IMAGES_DEAD);
-            } else if (this.isHurt()) {
-                this.playAnimation(this.IMAGES_HURT);
-            }
-            else if (this.isAboveGround()) {
-                this.playAnimation(this.IMAGES_JUMPING);
-            } else {
-                if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
-                    this.playAnimation(this.IMAGES_WALKING);
-                }
-            }
-        }, 100);
-    }
+    update() {
+        this.audioWalk.pause();
+        this.audioJump.pause();
 
-    stop() {
-        clearInterval(this.moveInterval);
-        clearInterval(this.animationInterval);
+        if (this.isAboveGround() || this.speedY > 0) {
+            this.y -= this.speedY;
+            this.speedY -= this.acceleration;
+        }
+        if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
+            this.moveRight();
+            this.otherDirection = false;
+            //this.audioWalk.play();
+        } if (this.world.keyboard.LEFT && this.x > 0) {
+            this.moveLeft();
+            this.otherDirection = true;
+            //this.audioWalk.play();
+        } if (this.world.keyboard.UP && !this.isAboveGround()) {
+            this.jump();
+            this.audioJump.play();
+        }
+        this.world.camera_x = -this.x + 100;
+        if (this.isDead()) {
+            this.playAnimation(this.IMAGES_DEAD);
+        } else if (this.isHurt()) {
+            this.playAnimation(this.IMAGES_HURT);
+        }
+        else if (this.isAboveGround()) {
+            this.playAnimation(this.IMAGES_JUMPING);
+        } else {
+            if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
+                this.playAnimation(this.IMAGES_WALKING);
+            }
+        }
     }
 
     /**
