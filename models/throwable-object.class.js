@@ -32,7 +32,6 @@ class ThrowableObject extends MovableObject {
         this.loadImages(this.IMAGES_BOTTLE_SPLASH);
         this.loadImages(this.IMAGES_BOTTLE_GROUND);
         this.x = x;
-        this.randomSpawn = Math.random() * 300;
         this.y = y;
         this.height = 100;
         this.width = 70;

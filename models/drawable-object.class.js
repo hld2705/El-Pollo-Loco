@@ -26,7 +26,7 @@ class DrawableObject {
      * @param {asda} ctx can be deleted, used for detecting collisions
      */
     drawFrame(ctx) {
-        if (this instanceof Character || this instanceof Chicken) { // instanceof se odnosi SAMO I SAMO na Character i Chicken u ovom slucaju
+        if (this instanceof Character || this instanceof Chicken || this instanceof SmallChicken) { // instanceof se odnosi SAMO I SAMO na Character i Chicken u ovom slucaju
             ctx.beginPath();
             ctx.lineWidth = '5';
             ctx.strokeStyle = 'blue';

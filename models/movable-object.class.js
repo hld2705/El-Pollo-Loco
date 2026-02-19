@@ -7,10 +7,14 @@ class MovableObject extends DrawableObject {
     lastHit = 0;
 
     applyGravity() {
-            if (this.isAboveGround() || this.speedY > 0) {
-                this.y -= this.speedY;
-                this.speedY -= this.acceleration;
-            }
+
+        this.y -= this.speedY;
+        this.speedY -= this.acceleration;
+
+        if (this.y > 350) {
+            this.y = 350;
+            this.speedY = 0;
+        }
     }
 
     isAboveGround() {
@@ -23,7 +27,6 @@ class MovableObject extends DrawableObject {
 
     moveLeft() {
         this.x -= this.speed;
-
     }
 
     playAnimation(images) {
@@ -56,10 +59,17 @@ class MovableObject extends DrawableObject {
         return timepassed < 0.5;
     }
 
+    /**
+     * 
+     * @param {event} mo 
+     * @returns calculates on the principle of a the axis if the character is actually touching another object, added 3px of padding to enlarge the hitboxes
+     */
     isColliding(mo) {
-        return this.x + this.width > mo.x &&
-            this.y + this.height > mo.y &&
-            this.x < mo.x &&
-            this.y < mo.y + mo.height
+        const padding = 3;
+
+        return this.x < mo.x + mo.width + padding &&
+            this.x + this.width > mo.x - padding &&
+            this.y < mo.y + mo.height + padding &&
+            this.y + this.height > mo.y - padding;
     }
 }

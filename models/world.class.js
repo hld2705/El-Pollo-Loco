@@ -1,6 +1,5 @@
 class World {
     character = new Character();
-    level = level1;
     ctx;
     canvas; // ova canvas varijabla je potrebna pri clear animation frame, potrebna je tako sto se kod svakog frame-a istovremeno
     // ekran mora ocistiti i opet crtati
@@ -9,15 +8,17 @@ class World {
     statusBar = new StatusBar();
     statusBarCoin = new StatusBarCoin();
     statusBarFlask = new StatusBarFlask();
+
     throwableObjects = [];
 
     constructor(canvas, keyboard) {
+        this.level = level1;
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas; // sa ovim se onda uvodi u pricu nova varijabla imena canvas
-        this.keyboard = keyboard
+        this.keyboard = keyboard;
+        this.setWorld();
         this.start();
         this.draw();
-        this.setWorld();
         this.run();
     }
 
@@ -40,10 +41,24 @@ class World {
         this.level.enemies.forEach(enemy => {
             enemy.update();
         });
+        this.level.enemies = this.level.enemies.filter(enemy => !enemy.shouldBeRemoved);
+        this.level.enemiesSmall.forEach(enemySmall => {
+            enemySmall.update()
+        });
+        this.level.enemiesSmall = this.level.enemiesSmall.filter(enemySmall => !enemySmall.shouldBeRemoved);
         this.throwableObjects.forEach(bottle => {
             bottle.applyGravity();
             bottle.update();
         });
+
+        if (this.level.enemies.length === 0 &&
+            this.level.enemiesSmall.length === 0 &&
+            this.level.endboss) {
+            this.level.endbossActive = true;
+        }
+        if (this.level.endbossActive) {
+            this.level.endboss.update();
+        }
     }
 
     /**
@@ -82,18 +97,42 @@ class World {
      * health from the character gets deducted
      */
     checkCollisions() {
-        this.level.enemies.forEach(enemy => {
-            if (this.character.isColliding(enemy)) {
-                if (this.character.y + this.character.height - 20 < enemy.y) {
-                    enemy.hit();
-                    this.character.jump();
-                } else {
-                    this.character.hit();
-                    this.statusBar.setPercentage(this.character.energy);
-                }
+    this.level.getAllEnemies().forEach(enemy => {
+        if (this.character.isColliding(enemy)) {
+            if (this.character.y + this.character.height - 20 < enemy.y) {
+                enemy.hit();
+                this.character.jump();
+            } else {
+                this.character.hit();
+                this.statusBar.setPercentage(this.character.energy);
+            }
+        }
+    });
+}
+
+    /**
+     * Check if character collides with ground bottles
+     * If collision detected:
+     *   - Add to character.bottleCount
+     *   - Cap at 5 bottles max (100%)
+     *   - Update status bar
+     *   - Remove bottle from game
+     */
+   checkBottleCollisions() {
+    this.throwableObjects.forEach((bottle, index) => {
+        this.level.getAllEnemies().forEach(enemy => {
+            if (bottle.isColliding(enemy)) {
+                enemy.hit();
+                bottle.splashBottle();
             }
         });
-    }
+
+        bottle.checkCollisionWithGround();
+        if (bottle.isSplashComplete()) {
+            this.throwableObjects.splice(index, 1);
+        }
+    });
+}
 
     /**
      * Check if character collides with ground bottles
@@ -106,38 +145,30 @@ class World {
     checkBottleCollection() {
         this.level.groundBottles.forEach((bottle, index) => {
             if (this.character.isColliding(bottle)) {
-
                 this.character.bottleCount++;
-
                 if (this.character.bottleCount > 5) {
                     this.character.bottleCount = 5;
                 }
-
                 this.statusBarFlask.setPercentage(this.character.bottleCount * 20);
-
                 this.level.groundBottles.splice(index, 1);
             }
         });
     }
 
-    /**
-     * Checks if the bottle has colided with the enemy
-     */
-    checkBottleCollisions() {
-        this.throwableObjects.forEach((bottle,index) => {
-            this.level.enemies.forEach((enemy) => {
-                if (bottle.isColliding(enemy)) {
-                    enemy.hit();
-                    bottle.splashBottle();
+    checkCoinCollection(){
+        this.level.coin.forEach((coin) => {
+            if(this.character.isColliding(coin)){
+                this.character.coinCount++;
+                if(this.character.coinCount > 5) {
+                    this.character.coinCount = 5;
                 }
-            });
-            bottle.checkCollisionWithGround();
-            if(bottle.isSplashComplete()){
-                this.throwableObjects.splice(index, 1);
+                this.statusBarCoin.setPercentage(this.character.coinCount * 20);
+                this.level.coin.splice(index, 1);
             }
-        });
+        })
     }
 
+    
     setWorld() {
         this.character.world = this;
     }
@@ -152,9 +183,14 @@ class World {
         this.addToMap(this.statusBarFlask);
         this.ctx.translate(this.camera_x, 0); // i potrebno je opet vratiti na svoje mjesto 
         this.addToMap(this.character);
+        if (this.level.endbossActive) {
+            this.addToMap(this.level.endboss);
+        }
         this.addObjectstoMap(this.level.clouds);
         this.addObjectstoMap(this.level.groundBottles);
+        this.addObjectstoMap(this.level.coin);
         this.addObjectstoMap(this.level.enemies);
+        this.addObjectstoMap(this.level.enemiesSmall);
         this.addObjectstoMap(this.throwableObjects);
         this.ctx.translate(-this.camera_x, 0);
     };
@@ -207,4 +243,5 @@ class World {
         mo.x = mo.x * - 1;
         this.ctx.restore();
     }
+
 }

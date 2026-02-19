@@ -73,7 +73,7 @@ class Character extends MovableObject {
      * function for animating the character in the right way, all the pictures and also the functionalities are being displayed 
      * in 60 fps i.e 1000/60
      */
-    update() {
+        update() {
         this.audioWalk.pause();
         this.audioJump.pause();
 
@@ -81,7 +81,7 @@ class Character extends MovableObject {
             this.y -= this.speedY;
             this.speedY -= this.acceleration;
         }
-        if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
+        if (this.world.keyboard.RIGHT) {
             this.moveRight();
             this.otherDirection = false;
             //this.audioWalk.play();
@@ -102,7 +102,7 @@ class Character extends MovableObject {
         else if (this.isAboveGround()) {
             this.playAnimation(this.IMAGES_JUMPING);
         } else {
-            if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
+            if (this.world.keyboard.RIGHT || (this.world.keyboard.LEFT && this.x > 0)) {
                 this.playAnimation(this.IMAGES_WALKING);
             }
         }
