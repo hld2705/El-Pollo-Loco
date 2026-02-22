@@ -70,6 +70,8 @@ class World {
             this.checkBottleCollection();
             this.checkThrowableObjects();
             this.checkBottleCollisions();
+            this.checkCoinCollection();
+            this.checkHeartCollection();
         }, 200);
     }
 
@@ -97,18 +99,18 @@ class World {
      * health from the character gets deducted
      */
     checkCollisions() {
-    this.level.getAllEnemies().forEach(enemy => {
-        if (this.character.isColliding(enemy)) {
-            if (this.character.y + this.character.height - 20 < enemy.y) {
-                enemy.hit();
-                this.character.jump();
-            } else {
-                this.character.hit();
-                this.statusBar.setPercentage(this.character.energy);
+        this.level.getAllEnemies().forEach(enemy => {
+            if (this.character.isColliding(enemy)) {
+                if (this.character.y + this.character.height - 20 < enemy.y) {
+                    enemy.hit();
+                    this.character.jump();
+                } else {
+                    this.character.hit();
+                    this.statusBar.setPercentage(this.character.energy);
+                }
             }
-        }
-    });
-}
+        });
+    }
 
     /**
      * Check if character collides with ground bottles
@@ -118,21 +120,21 @@ class World {
      *   - Update status bar
      *   - Remove bottle from game
      */
-   checkBottleCollisions() {
-    this.throwableObjects.forEach((bottle, index) => {
-        this.level.getAllEnemies().forEach(enemy => {
-            if (bottle.isColliding(enemy)) {
-                enemy.hit();
-                bottle.splashBottle();
+    checkBottleCollisions() {
+        this.throwableObjects.forEach((bottle, index) => {
+            this.level.getAllEnemies().forEach(enemy => {
+                if (bottle.isColliding(enemy)) {
+                    enemy.hit();
+                    bottle.splashBottle();
+                }
+            });
+
+            bottle.checkCollisionWithGround();
+            if (bottle.isSplashComplete()) {
+                this.throwableObjects.splice(index, 1);
             }
         });
-
-        bottle.checkCollisionWithGround();
-        if (bottle.isSplashComplete()) {
-            this.throwableObjects.splice(index, 1);
-        }
-    });
-}
+    }
 
     /**
      * Check if character collides with ground bottles
@@ -155,11 +157,19 @@ class World {
         });
     }
 
-    checkCoinCollection(){
-        this.level.coin.forEach((coin) => {
-            if(this.character.isColliding(coin)){
+    /**
+     * Check if character collides with coins
+     * If collision detected:
+     *   - Add to character.coinCount
+     *   - Cap at 5 coins max (100%)
+     *   - Update status bar
+     *   - Remove coin from game
+     */
+    checkCoinCollection() {
+        this.level.coin.forEach((coin, index) => {
+            if (this.character.isColliding(coin)) {
                 this.character.coinCount++;
-                if(this.character.coinCount > 5) {
+                if (this.character.coinCount > 5) {
                     this.character.coinCount = 5;
                 }
                 this.statusBarCoin.setPercentage(this.character.coinCount * 20);
@@ -168,7 +178,27 @@ class World {
         })
     }
 
-    
+    /**
+     * Check if character collides with hearts
+     * If collision detected:
+     *   - Add to character.heartCount
+     *   - Cap at 5 hearts max (100%)
+     *   - Update status bar
+     *   - Remove heart from game
+     */
+    checkHeartCollection() {
+        this.level.heart.forEach((heart, index) => {
+            if (this.character.isColliding(heart)) {
+                this.character.energy += 20;
+                if (this.character.energy > 100) {
+                    this.character.energy = 100;
+                }
+                this.statusBar.setPercentage(this.character.energy);
+                this.level.heart.splice(index, 1);
+            }
+        })
+    }
+
     setWorld() {
         this.character.world = this;
     }
@@ -189,6 +219,7 @@ class World {
         this.addObjectstoMap(this.level.clouds);
         this.addObjectstoMap(this.level.groundBottles);
         this.addObjectstoMap(this.level.coin);
+        this.addObjectstoMap(this.level.heart);
         this.addObjectstoMap(this.level.enemies);
         this.addObjectstoMap(this.level.enemiesSmall);
         this.addObjectstoMap(this.throwableObjects);

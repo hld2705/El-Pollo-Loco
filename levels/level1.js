@@ -46,5 +46,12 @@ const level1 = new Level(
         new SmallChicken(),
         new SmallChicken()
     ],
+     [
+        new Heart(350, 200),
+        new Heart(200, 110),
+        new Heart(400, 310),
+        new Heart(900, 200),
+        new Heart(1000, 200)
+    ],
     new Endboss()
 );

@@ -7,7 +7,6 @@ class MovableObject extends DrawableObject {
     lastHit = 0;
 
     applyGravity() {
-
         this.y -= this.speedY;
         this.speedY -= this.acceleration;
 
@@ -66,7 +65,6 @@ class MovableObject extends DrawableObject {
      */
     isColliding(mo) {
         const padding = 3;
-
         return this.x < mo.x + mo.width + padding &&
             this.x + this.width > mo.x - padding &&
             this.y < mo.y + mo.height + padding &&
