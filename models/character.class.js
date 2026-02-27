@@ -1,6 +1,6 @@
 class Character extends MovableObject {
     height = 250;
-    y = 95; // 195
+    y = 95;
     speed = 10;
     bottleCount = 0;
     coinCount = 0;
@@ -76,7 +76,7 @@ class Character extends MovableObject {
      * function for animating the character in the right way, all the pictures and also the functionalities are being displayed 
      * in 60 fps i.e 1000/60
      */
-        update() {
+    update() {
         this.audioWalk.pause();
         this.audioJump.pause();
 

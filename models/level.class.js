@@ -2,7 +2,6 @@ class Level{
     enemies;
     clouds;
     backgroundObjects;
-    level_end_x = 1530;
     groundBottles;
     coin;
     heart;

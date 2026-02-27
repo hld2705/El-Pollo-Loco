@@ -8,11 +8,17 @@ class World {
     statusBar = new StatusBar();
     statusBarCoin = new StatusBarCoin();
     statusBarFlask = new StatusBarFlask();
+    bossStatusBar = new StatusBar();
+    gameEnded = false;
+    endScreen = null;
 
     throwableObjects = [];
 
     constructor(canvas, keyboard) {
         this.level = level1;
+        this.bossStatusBar = new StatusBar();
+        this.bossStatusBar.width = 150;
+        this.bossStatusBar.height = 40;
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas; // sa ovim se onda uvodi u pricu nova varijabla imena canvas
         this.keyboard = keyboard;
@@ -38,6 +44,9 @@ class World {
      */
     update() {
         this.character.update();
+        if (this.character.energy <= 0) {
+            this.endGame("lost");
+        }
         this.level.enemies.forEach(enemy => {
             enemy.update();
         });
@@ -59,6 +68,12 @@ class World {
         if (this.level.endbossActive) {
             this.level.endboss.update();
         }
+        if (
+            this.level.endbossActive &&
+            this.level.endboss.energy <= 0
+        ) {
+            this.endGame("won");
+        }
     }
 
     /**
@@ -79,7 +94,7 @@ class World {
      * Needed for game optimization, otherwise the intervals are never stoped, therefore game gets extremly laggy
      */
     stop() {
-        clearInterval(intervalRun);
+        clearInterval(this.intervalRun);
     }
 
     /**
@@ -87,7 +102,7 @@ class World {
      */
     checkThrowableObjects() {
         if (this.keyboard.SPACE && this.character.bottleCount > 0) {
-            let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100)
+            let bottle = new ThrowableObject(this.character.x, this.character.y + 100, this.character.otherDirection);
             this.throwableObjects.push(bottle);
             this.character.bottleCount--;
             this.statusBarFlask.setPercentage(this.character.bottleCount * 20);
@@ -122,6 +137,8 @@ class World {
      */
     checkBottleCollisions() {
         this.throwableObjects.forEach((bottle, index) => {
+
+            // hit normal enemies
             this.level.getAllEnemies().forEach(enemy => {
                 if (bottle.isColliding(enemy)) {
                     enemy.hit();
@@ -129,13 +146,21 @@ class World {
                 }
             });
 
+            // hit endboss
+            if (this.level.endbossActive) {
+                if (bottle.isColliding(this.level.endboss)) {
+                    this.level.endboss.hit();
+                    bottle.splashBottle();
+                }
+            }
+
             bottle.checkCollisionWithGround();
+
             if (bottle.isSplashComplete()) {
                 this.throwableObjects.splice(index, 1);
             }
         });
     }
-
     /**
      * Check if character collides with ground bottles
      * If collision detected:
@@ -181,10 +206,9 @@ class World {
     /**
      * Check if character collides with hearts
      * If collision detected:
-     *   - Add to character.heartCount
-     *   - Cap at 5 hearts max (100%)
-     *   - Update status bar
-     *   - Remove heart from game
+     * the user gets 20 energy and the bar gets updated
+     * if the user already has 100% health, the heart gets erased
+     * 
      */
     checkHeartCollection() {
         this.level.heart.forEach((heart, index) => {
@@ -199,11 +223,50 @@ class World {
         })
     }
 
+    endGame(type) {
+        if (this.gameEnded) return;
+
+        this.gameEnded = true;
+        clearInterval(this.gameLoop);
+        clearInterval(this.intervalRun);
+
+        this.endScreen = new EndGame(
+            type,
+            this.character.coinCount,
+            () => this.restartGame()
+        );
+        this.handleEndClick = (event) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            if (this.endScreen.isButtonClicked(x, y)) {
+                this.endScreen.onRestart();
+            }
+        };
+
+        canvas.addEventListener("click", this.handleEndClick);
+    }
+
+    restartGame() {
+        // remove click listener
+        canvas.removeEventListener("click", this.handleEndClick);
+
+        // create a fresh world
+        world = new World(canvas, keyboard);
+    }
+
+
     setWorld() {
         this.character.world = this;
     }
 
     draw() {
+        if (this.gameEnded) {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.endScreen.draw(this.ctx);
+            return;
+        }
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.translate(this.camera_x, 0);
         this.addObjectstoMap(this.level.backgroundObjects);
@@ -215,6 +278,12 @@ class World {
         this.addToMap(this.character);
         if (this.level.endbossActive) {
             this.addToMap(this.level.endboss);
+            this.bossStatusBar.x = this.level.endboss.x;
+            this.bossStatusBar.y = this.level.endboss.y - 40;
+            let percentage =
+                (this.level.endboss.energy / this.level.endboss.maxEnergy) * 100;
+            this.bossStatusBar.setPercentage(percentage);
+            this.addToMap(this.bossStatusBar);
         }
         this.addObjectstoMap(this.level.clouds);
         this.addObjectstoMap(this.level.groundBottles);

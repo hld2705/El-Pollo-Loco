@@ -13,7 +13,6 @@ function init() {
     //world = new World(canvas, keyboard);
     loadGameAnimation()
     draw();
-
     canvas.addEventListener("mousemove", (e) => {
     if (menu && menu.isHovering) {
         canvas.style.cursor = menu.isHovering(e) ? "pointer" : "default";

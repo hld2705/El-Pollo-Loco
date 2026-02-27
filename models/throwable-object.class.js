@@ -26,7 +26,7 @@ class ThrowableObject extends MovableObject {
     hasCollided = false;
     throwInterval;
 
-    constructor(x, y) {
+    constructor(x, y, otherDirection) {
         super().loadImage('img/6_salsa_bottle/salsa_bottle.png');
         this.loadImages(this.IMAGES_BOTTLE_ROTATING);
         this.loadImages(this.IMAGES_BOTTLE_SPLASH);
@@ -35,6 +35,7 @@ class ThrowableObject extends MovableObject {
         this.y = y;
         this.height = 100;
         this.width = 70;
+        this.otherDirection = otherDirection;
         this.throw();
     }
 
@@ -46,7 +47,11 @@ class ThrowableObject extends MovableObject {
         this.applyGravity();
         this.throwIntervalBottle = setInterval(() => {
             if (!this.isSplashing) {
-                this.x += 10;
+                if (this.otherDirection) {
+                    this.x -= 10;
+                } else {
+                    this.x += 10;
+                }
             }
         }, 25);
     }
@@ -71,7 +76,7 @@ class ThrowableObject extends MovableObject {
             this.hasCollided = true;
             this.isSplashing = true;
             this.speedY = 0;
-            clearInterval(this.throwInterval);
+            clearInterval(this.throwIntervalBottle);
         }
     }
 
@@ -84,7 +89,7 @@ class ThrowableObject extends MovableObject {
             this.hasCollided = true;
             this.isSplashing = true;
             this.speedY = 0;
-            clearInterval(this.throwInterval);
+            clearInterval(this.throwIntervalBottle);
         }
     }
 

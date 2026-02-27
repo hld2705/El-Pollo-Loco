@@ -32,7 +32,12 @@ const level1 = new Level(
         new PickableBottle(600, 400),
         new PickableBottle(900, 400),
         new PickableBottle(1200, 400),
-        new PickableBottle(1500, 400)
+        new PickableBottle(1500, 400),
+        new PickableBottle(1600, 400),
+        new PickableBottle(1800, 400),
+        new PickableBottle(1900, 400),
+        new PickableBottle(1250, 400),
+        new PickableBottle(1590, 400)
     ],
     [
         new Coin(300, 200),
@@ -47,7 +52,7 @@ const level1 = new Level(
         new SmallChicken()
     ],
      [
-        new Heart(350, 200),
+        new Heart(350, 300),
         new Heart(200, 110),
         new Heart(400, 310),
         new Heart(900, 200),
