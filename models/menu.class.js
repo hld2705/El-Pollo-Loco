@@ -5,14 +5,14 @@ class Menu {
     this.y = canvas.height / 2;
     this.bgImage = new Image();
     this.bgImage.src = "img/9_intro_outro_screens/start/startscreen_2.png";
-    this.clickHandler = (e) => this.handleClick(e);
-    canvas.addEventListener("click", (e) => this.handleClick(e));
+    this.clickHandler = this.handleClick.bind(this);
+    canvas.addEventListener('click', this.clickHandler);
   }
-
 
   destroy() {
     this.canvas.removeEventListener("click", this.clickHandler);
   }
+
   /**
    * 
    * @param {canvas} ctx draws the circle in which the commands are contained
@@ -38,7 +38,6 @@ class Menu {
    * @param {Element} e parameter is listening to the user clicks
    * @returns the correct screen according to where the user clicks
    */
-
   handleClick(e) {
     if (!showMenu) return;
     const rect = this.canvas.getBoundingClientRect();
@@ -60,19 +59,22 @@ class Menu {
     }
   }
 
-/**
- * 
- * @param {event} e notices that the user is hovering over an object
- * @returns curor = "pointer"
- */
+  /**
+   * 
+   * @param {event} e notices that the user is hovering over an object
+   * @returns cursor = "pointer"
+   */
   isHovering(e) {
     const rect = this.canvas.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
     if (mouseY > this.y + 20 && mouseY < this.y + 60) {
-      return true;}
+      return true;
+    }
     if (mouseX > this.x - 100 && mouseX < this.x + 100 && mouseY > this.y - 55 && mouseY < this.y - 25) {
       return true;
-    }if (mouseX > this.x - 100 && mouseX < this.x + 100 && mouseY > this.y - 10 && mouseY < this.y + 10) {
-      return true;}}
+    } if (mouseX > this.x - 100 && mouseX < this.x + 100 && mouseY > this.y - 10 && mouseY < this.y + 10) {
+      return true;
+    }
+  }
 }

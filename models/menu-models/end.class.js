@@ -3,77 +3,87 @@ class EndGame extends DrawableObject {
     pictureGameOver = 'img/You won, you lost/Game Over.png';
     pictureGameWon = 'img/You won, you lost/You won A.png';
 
-    button = {
-        x: 0,
-        y: 0,
-        width: 220,
-        height: 60
+    buttons = {
+        playAgain: { x: 0, y: 0, width: 180, height: 45 },
+        mainMenu: { x: 0, y: 0, width: 180, height: 45 }
     };
 
-    constructor(type, score, onRestart) {
+    constructor(type, score, onRestart, onMainMenu) {
         super();
-        this.type = type; // "lost" or "won"
+        this.type = type;
         this.score = score;
         this.onRestart = onRestart;
-        if (type === "lost") {
-            this.loadImage(this.pictureGameOver);
-        } else {
-            this.loadImage(this.pictureGameWon);
-        }
-        this.width = canvas.width;
-        this.height = canvas.height;
-        this.button.x = canvas.width / 2 - 110;
-        this.button.y = canvas.height / 2 + 120;
-        this.x = 0;
-        this.y = 0;
+        this.onMainMenu = onMainMenu;
+        this.loadImage(
+            type === "lost" ? this.pictureGameOver : this.pictureGameWon
+        );
+        const rightX = canvas.width * 0.65;
+        const centerY = canvas.height / 2;
+        // Buttons
+        this.buttons.playAgain.x = rightX;
+        this.buttons.playAgain.y = centerY + 10;
+        this.buttons.mainMenu.x = rightX;
+        this.buttons.mainMenu.y = centerY + 80;
     }
 
     draw(ctx) {
-        // black background
         ctx.fillStyle = "black";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        // image centered
-        ctx.drawImage(this.img,
-            canvas.width / 2 - 300,
+
+        // LEFT: image
+        ctx.drawImage(
+            this.img,
+            canvas.width * 0.1,
             canvas.height / 2 - 200,
-            600,
-            400
-        );
-        // score text
-        if (this.type === "won") {
-            ctx.fillStyle = "white";
-            ctx.font = "40px Arial";
-            ctx.fillText(
-                "Score: " + this.score,
-                canvas.width / 2 - 100,
-                canvas.height / 2 + 250
-            );
-        }
-        // button
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(
-            this.button.x,
-            this.button.y,
-            this.button.width,
-            this.button.height
+            350,
+            350
         );
 
+        // RIGHT: score
+        if (this.type === "won") {
+            ctx.fillStyle = "white";
+            ctx.font = "32px Arial";
+            ctx.textAlign = "left";
+            ctx.fillText(
+                "Coins collected: " + this.score,
+                canvas.width * 0.6,
+                canvas.height / 2 - 120
+            );
+        }
+
+        // Buttons
+        this.drawButton(ctx, this.buttons.playAgain, "Play Again");
+        this.drawButton(ctx, this.buttons.mainMenu, "Main Menu");
+    }
+
+    drawButton(ctx, btn, text) {
+        ctx.fillStyle = "#FFDD00";
+        ctx.fillRect(btn.x, btn.y, btn.width, btn.height);
         ctx.fillStyle = "black";
-        ctx.font = "30px Arial";
+        ctx.font = "20px Arial";
+        ctx.textAlign = "center";
         ctx.fillText(
-            "Play Again",
-            this.button.x + 30,
-            this.button.y + 40
+            text,
+            btn.x + btn.width / 2,
+            btn.y + 28
         );
     }
-    isButtonClicked(x, y){
-    return (
-        x >= this.button.x &&
-        x <= this.button.x + this.button.width &&
-        y >= this.button.y &&
-        y <= this.button.y + this.button.height
-    );
-}
+
+    getClickedButton(x, y) {
+        if (this.isInside(this.buttons.playAgain, x, y)) return "playAgain";
+        if (this.isInside(this.buttons.mainMenu, x, y)) return "mainMenu";
+        return null;
+    }
+
+    isInside(btn, x, y) {
+        return (
+            x >= btn.x &&
+            x <= btn.x + btn.width &&
+            y >= btn.y &&
+            y <= btn.y + btn.height
+        );
+    }
+
 }
 
 

@@ -10,8 +10,8 @@ let menu = null;
  */
 function init() {
     canvas = document.getElementById("canvas");
-    //world = new World(canvas, keyboard);
-    loadGameAnimation()
+    //loadGameAnimation()
+    menu = new Menu(canvas);
     draw();
     canvas.addEventListener("mousemove", (e) => {
     if (menu && menu.isHovering) {
@@ -38,15 +38,13 @@ async function loadGameAnimation() {
  * here is where the canvas i.e. ctx. i.e main draw method is defined
  */
 function draw() {
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,canvas.width,canvas.height);
     if (showMenu) {
         if (menu) menu.draw(ctx);
-    } else {
+    } else if (world) {
         world.draw();
     }
-
     requestAnimationFrame(draw);
 }
 

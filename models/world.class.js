@@ -11,7 +11,6 @@ class World {
     bossStatusBar = new StatusBar();
     gameEnded = false;
     endScreen = null;
-
     throwableObjects = [];
 
     constructor(canvas, keyboard) {
@@ -137,25 +136,19 @@ class World {
      */
     checkBottleCollisions() {
         this.throwableObjects.forEach((bottle, index) => {
-
-            // hit normal enemies
             this.level.getAllEnemies().forEach(enemy => {
                 if (bottle.isColliding(enemy)) {
                     enemy.hit();
                     bottle.splashBottle();
                 }
             });
-
-            // hit endboss
             if (this.level.endbossActive) {
                 if (bottle.isColliding(this.level.endboss)) {
                     this.level.endboss.hit();
                     bottle.splashBottle();
                 }
             }
-
             bottle.checkCollisionWithGround();
-
             if (bottle.isSplashComplete()) {
                 this.throwableObjects.splice(index, 1);
             }
@@ -225,37 +218,45 @@ class World {
 
     endGame(type) {
         if (this.gameEnded) return;
-
         this.gameEnded = true;
         clearInterval(this.gameLoop);
         clearInterval(this.intervalRun);
-
         this.endScreen = new EndGame(
             type,
             this.character.coinCount,
-            () => this.restartGame()
-        );
+            () => this.restartGame(),
+            () => this.mainMenu());
         this.handleEndClick = (event) => {
             const rect = canvas.getBoundingClientRect();
             const x = event.clientX - rect.left;
             const y = event.clientY - rect.top;
-
-            if (this.endScreen.isButtonClicked(x, y)) {
+            const clicked = this.endScreen.getClickedButton(x, y);
+            if (clicked === "playAgain") {
                 this.endScreen.onRestart();
             }
+            if (clicked === "mainMenu") {
+                this.endScreen.onMainMenu();
+            }
         };
-
         canvas.addEventListener("click", this.handleEndClick);
     }
 
     restartGame() {
         // remove click listener
         canvas.removeEventListener("click", this.handleEndClick);
-
-        // create a fresh world
+        showMenu = false;
         world = new World(canvas, keyboard);
     }
 
+    mainMenu() {
+        canvas.removeEventListener("click", this.handleEndClick);
+        clearInterval(this.gameLoop);
+        clearInterval(this.intervalRun);
+        showMenu = true;
+        if (menu) menu.destroy();
+        world = null;
+        menu = new Menu(canvas);
+    }
 
     setWorld() {
         this.character.world = this;
