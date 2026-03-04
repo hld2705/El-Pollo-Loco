@@ -12,6 +12,7 @@ class World {
     gameEnded = false;
     endScreen = null;
     throwableObjects = [];
+    phoneKeys;
 
     constructor(canvas, keyboard) {
         this.level = level1;
@@ -21,6 +22,7 @@ class World {
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas; // sa ovim se onda uvodi u pricu nova varijabla imena canvas
         this.keyboard = keyboard;
+        this.phoneKeys = new Phone(this.keyboard, this.canvas, this);
         this.setWorld();
         this.start();
         this.draw();
@@ -293,6 +295,7 @@ class World {
         this.addObjectstoMap(this.level.enemies);
         this.addObjectstoMap(this.level.enemiesSmall);
         this.addObjectstoMap(this.throwableObjects);
+        this.phoneKeys.draw(this.ctx);
         this.ctx.translate(-this.camera_x, 0);
     };
 

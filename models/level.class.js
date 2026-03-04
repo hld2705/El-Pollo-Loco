@@ -20,7 +20,6 @@ class Level{
         this.endboss = endboss;
         this.endbossActive = false;
     }
-
     
     getAllEnemies() {
         const bosses = this.endboss ? [this.endboss] : [];
