@@ -22,20 +22,6 @@ class DrawableObject {
     }
 
     /**
-     * 
-     * @param {asda} ctx can be deleted, used for detecting collisions
-     */
-    drawFrame(ctx) {
-        if (this instanceof Character || this instanceof Chicken || this instanceof SmallChicken) { // instanceof se odnosi SAMO I SAMO na Character i Chicken u ovom slucaju
-            ctx.beginPath();
-            ctx.lineWidth = '5';
-            ctx.strokeStyle = 'blue';
-            ctx.rect(this.x, this.y, this.width, this.height);
-            ctx.stroke();
-        }
-    }
-
-    /**
    * 
    * @param {Array} arr  ['img/image1.png', 'img/image2.png', ...]
    */

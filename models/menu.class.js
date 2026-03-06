@@ -6,11 +6,11 @@ class Menu {
     this.bgImage = new Image();
     this.bgImage.src = "img/9_intro_outro_screens/start/startscreen_2.png";
     this.clickHandler = this.handleClick.bind(this);
-    canvas.addEventListener('click', this.clickHandler);
+    canvas.addEventListener('pointerdown', this.clickHandler);
   }
 
   destroy() {
-    this.canvas.removeEventListener("click", this.clickHandler);
+    this.canvas.removeEventListener("pointerdown", this.clickHandler);
   }
 
   /**
@@ -29,8 +29,6 @@ class Menu {
     ctx.strokeText("PLAY", this.x, this.y + 40);
     ctx.fillText("TUTORIAL", this.x, this.y);
     ctx.strokeText("TUTORIAL", this.x, this.y);
-    ctx.fillText("SETTINGS", this.x, this.y - 40);
-    ctx.strokeText("SETTINGS", this.x, this.y - 40);
   }
 
   /**
@@ -41,18 +39,14 @@ class Menu {
   handleClick(e) {
     if (!showMenu) return;
     const rect = this.canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    // PLAY
+    const scaleX = this.canvas.width / rect.width;
+    const scaleY = this.canvas.height / rect.height;
+    const mouseX = (e.clientX - rect.left) * scaleX;
+    const mouseY = (e.clientY - rect.top) * scaleY;
     if (mouseY > this.y + 20 && mouseY < this.y + 60) {
       this.destroy();
       showMenu = false;
       world = new World(canvas, keyboard);
-    }
-    // SETTINGS
-    if (mouseX > this.x - 100 && mouseX < this.x + 100 && mouseY > this.y - 55 && mouseY < this.y - 25) {
-      this.destroy();
-      menu = new Settings(this.canvas);
     }
     if (mouseX > this.x - 100 && mouseX < this.x + 100 && mouseY > this.y - 10 && mouseY < this.y + 10) {
       menu = new Tutorial(this.canvas);
@@ -71,9 +65,7 @@ class Menu {
     if (mouseY > this.y + 20 && mouseY < this.y + 60) {
       return true;
     }
-    if (mouseX > this.x - 100 && mouseX < this.x + 100 && mouseY > this.y - 55 && mouseY < this.y - 25) {
-      return true;
-    } if (mouseX > this.x - 100 && mouseX < this.x + 100 && mouseY > this.y - 10 && mouseY < this.y + 10) {
+    if (mouseX > this.x - 100 && mouseX < this.x + 100 && mouseY > this.y - 10 && mouseY < this.y + 10) {
       return true;
     }
   }

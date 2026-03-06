@@ -1,37 +1,35 @@
 class World {
-    character = new Character();
-    ctx;
-    canvas; // ova canvas varijabla je potrebna pri clear animation frame, potrebna je tako sto se kod svakog frame-a istovremeno
-    // ekran mora ocistiti i opet crtati
-    keyboard;
-    camera_x = 0; // varijabla za pomicanje svijeta
-    statusBar = new StatusBar();
-    statusBarCoin = new StatusBarCoin();
-    statusBarFlask = new StatusBarFlask();
-    bossStatusBar = new StatusBar();
-    gameEnded = false;
-    endScreen = null;
-    throwableObjects = [];
-    phoneKeys;
-
     constructor(canvas, keyboard) {
-        this.level = level1;
-        this.bossStatusBar = new StatusBar();
-        this.bossStatusBar.width = 150;
-        this.bossStatusBar.height = 40;
+        this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
-        this.canvas = canvas; // sa ovim se onda uvodi u pricu nova varijabla imena canvas
         this.keyboard = keyboard;
+        this.level = createLevel1();
+        this.character = new Character();
+        this.character.world = this;
+        this.statusBar = new StatusBar();
+        this.statusBarCoin = new StatusBarCoin();
+        this.statusBarFlask = new StatusBarFlask();
+        this.bossStatusBar = this.createBossBar();
+        this.throwableObjects = [];
         this.phoneKeys = new Phone(this.keyboard, this.canvas, this);
-        this.setWorld();
+        this.camera_x = 0;
+        this.gameEnded = false;
         this.start();
-        this.draw();
         this.run();
     }
 
     /**
-     * Starts the world game loop and anything on it with the desired frame rate ~60 fps, synching all of the characters for a smoother 
-     * gameplay
+     * Boss gets his own health bar, helps with the 
+     */
+    createBossBar() {
+        const bar = new StatusBar();
+        bar.width = 150;
+        bar.height = 40;
+        return bar;
+    }
+
+    /**
+     * Keeps the game intervals synced in 60fps
      */
     start() {
         this.gameLoop = setInterval(() => {
@@ -41,183 +39,189 @@ class World {
     }
 
     /**
-     * One main global animation that syncs all the characters ingame to ~60fps
-     */
-    update() {
-        this.character.update();
-        if (this.character.energy <= 0) {
-            this.endGame("lost");
-        }
-        this.level.enemies.forEach(enemy => {
-            enemy.update();
-        });
-        this.level.enemies = this.level.enemies.filter(enemy => !enemy.shouldBeRemoved);
-        this.level.enemiesSmall.forEach(enemySmall => {
-            enemySmall.update()
-        });
-        this.level.enemiesSmall = this.level.enemiesSmall.filter(enemySmall => !enemySmall.shouldBeRemoved);
-        this.throwableObjects.forEach(bottle => {
-            bottle.applyGravity();
-            bottle.update();
-        });
-
-        if (this.level.enemies.length === 0 &&
-            this.level.enemiesSmall.length === 0 &&
-            this.level.endboss) {
-            this.level.endbossActive = true;
-        }
-        if (this.level.endbossActive) {
-            this.level.endboss.update();
-        }
-        if (
-            this.level.endbossActive &&
-            this.level.endboss.energy <= 0
-        ) {
-            this.endGame("won");
-        }
-    }
-
-    /**
-     * Function needed for the character to be able to run
+     * Updates the game events
      */
     run() {
         this.intervalRun = setInterval(() => {
-            this.checkCollisions();
-            this.checkBottleCollection();
-            this.checkThrowableObjects();
-            this.checkBottleCollisions();
-            this.checkCoinCollection();
-            this.checkHeartCollection();
+            this.checkGameEvents();
         }, 200);
     }
 
     /**
-     * Needed for game optimization, otherwise the intervals are never stoped, therefore game gets extremly laggy
+     * Needed for checking all of the events, multiple functions with similar actions needed for game syncing
      */
-    stop() {
-        clearInterval(this.intervalRun);
+    checkGameEvents() {
+        this.checkCollisions();
+        this.checkCollections();
+        this.checkThrowing();
+        this.checkBottleHits();
     }
 
     /**
-     * Imports Bottles as an array 
+     * Update function that runs on instant (as soon as the character does something, picks up, hits, or gets hit)
      */
-    checkThrowableObjects() {
-        if (this.keyboard.SPACE && this.character.bottleCount > 0) {
-            let bottle = new ThrowableObject(this.character.x, this.character.y + 100, this.character.otherDirection);
-            this.throwableObjects.push(bottle);
-            this.character.bottleCount--;
-            this.statusBarFlask.setPercentage(this.character.bottleCount * 20);
+    update() {
+        this.updateCharacter();
+        this.updateEnemies();
+        this.updateBoss();
+        this.updateBottles();
+    }
+
+    /**
+     * Needed for triggering the endGame as Lost
+     */
+    updateCharacter() {
+        this.character.update();
+        if (this.character.energy <= 0) this.endGame("lost");
+    }
+
+    /**
+     * When the enemy is dead it stays on the screen for about 2 secs and then gets removed from the screen and also updated
+     */
+    updateEnemies() {
+        this.level.enemies.forEach(e => e.update());
+        this.level.enemiesSmall.forEach(e => e.update());
+        this.level.enemies =
+            this.level.enemies.filter(e => !e.shouldBeRemoved);
+        this.level.enemiesSmall =
+            this.level.enemiesSmall.filter(e => !e.shouldBeRemoved);
+        if (this.level.enemies.length === 0 &&
+            this.level.enemiesSmall.length === 0 &&
+            this.level.endboss
+        ) { this.level.endbossActive = true; }
+    }
+
+    /**
+     * Needed to update the health bar from the endboss
+     */
+    updateBoss() {
+        if (!this.level.endbossActive) return;
+        this.level.endboss.update();
+        if (this.level.endboss.energy <= 0)
+            this.endGame("won");
+    }
+
+    /**
+     * Updates the status bar from the bottle 
+     */
+    updateBottles() {
+        this.throwableObjects.forEach(b => {
+            b.applyGravity();
+            b.update();
+        });
+    }
+
+    /**
+     * Need to check the remaining enemies left in order to spawn the "EndBoss"
+     */
+    noEnemiesLeft() {
+        return this.level.enemies.length === 0 &&
+            this.level.enemiesSmall.length === 0;
+    }
+
+    /**
+     * Checking collisions with the enemy
+     */
+    checkCollisions() {
+        this.level.getAllEnemies().forEach(enemy => {
+            if (!this.character.isColliding(enemy)) return;
+            const fromTop = this.character.y + this.character.height - 20 < enemy.y;
+            fromTop ? this.killEnemy(enemy) : this.damageCharacter();
+        });
+    }
+
+    /**
+     * Added a small jump when enemy is struck, both to confirm kill (stolen from Mario Bros) and also to "reward" the player 
+     */
+    killEnemy(enemy) {
+        enemy.hit();
+        this.character.jump();
+    }
+
+    /**
+     * Updates the character status bar when hit
+     */
+    damageCharacter() {
+        this.character.hit();
+        this.statusBar.setPercentage(this.character.energy);
+    }
+
+    /**
+     * Needed to register the bottle hits 
+     */
+    checkBottleHits() {
+        this.throwableObjects.forEach((bottle, index) => {
+            this.hitEnemiesWithBottle(bottle);
+            bottle.checkCollisionWithGround();
+            if (bottle.isSplashComplete())
+                this.throwableObjects.splice(index, 1);
+        });
+    }
+
+    /**
+     * Hitboxes needed for hitting the enemy with a solsa bottle, and also to display the splash animation
+     */
+    hitEnemiesWithBottle(bottle) {
+        this.level.getAllEnemies().forEach(enemy => {
+            if (bottle.isColliding(enemy)) {
+                enemy.hit();
+                bottle.splashBottle();
+            }
+        });
+        if (this.level.endbossActive &&
+            bottle.isColliding(this.level.endboss)) {
+            this.level.endboss.hit();
+            bottle.splashBottle();
         }
     }
 
     /**
-     * Checks if the player itself colided with the enemy(if yes jump and "kill" the enemy(ONLY FROM THE TOP)) if you touch the enemy
-     * health from the character gets deducted
+     * Registers the collection and updates the statusbars
      */
-    checkCollisions() {
-        this.level.getAllEnemies().forEach(enemy => {
-            if (this.character.isColliding(enemy)) {
-                if (this.character.y + this.character.height - 20 < enemy.y) {
-                    enemy.hit();
-                    this.character.jump();
-                } else {
-                    this.character.hit();
-                    this.statusBar.setPercentage(this.character.energy);
-                }
+    checkCollections() {
+        this.collectItems(this.level.groundBottles, () => {
+            this.character.bottleCount = Math.min(5, this.character.bottleCount + 1);
+            this.statusBarFlask.setPercentage(this.character.bottleCount * 20)
+        });
+        this.collectItems(this.level.coin, () => {
+            this.character.coinCount = Math.min(5, this.character.coinCount + 1);
+            this.statusBarCoin.setPercentage(this.character.coinCount * 20)
+        });
+        this.collectItems(this.level.heart, () => {
+            this.character.energy = Math.min(100, this.character.energy + 20);
+            this.statusBar.setPercentage(this.character.energy)
+        });
+    }
+
+    /**
+     * "collects" items so that deletes the items once the character hovers over them
+     */
+    collectItems(array, onCollect) {
+        array.forEach((item, index) => {
+            if (this.character.isColliding(item)) {
+                onCollect();
+                array.splice(index, 1);
             }
         });
     }
 
     /**
-     * Check if character collides with ground bottles
-     * If collision detected:
-     *   - Add to character.bottleCount
-     *   - Cap at 5 bottles max (100%)
-     *   - Update status bar
-     *   - Remove bottle from game
+     * Updates the flask bar when the user throws
      */
-    checkBottleCollisions() {
-        this.throwableObjects.forEach((bottle, index) => {
-            this.level.getAllEnemies().forEach(enemy => {
-                if (bottle.isColliding(enemy)) {
-                    enemy.hit();
-                    bottle.splashBottle();
-                }
-            });
-            if (this.level.endbossActive) {
-                if (bottle.isColliding(this.level.endboss)) {
-                    this.level.endboss.hit();
-                    bottle.splashBottle();
-                }
-            }
-            bottle.checkCollisionWithGround();
-            if (bottle.isSplashComplete()) {
-                this.throwableObjects.splice(index, 1);
-            }
-        });
-    }
-    /**
-     * Check if character collides with ground bottles
-     * If collision detected:
-     *   - Add to character.bottleCount
-     *   - Cap at 5 bottles max (100%)
-     *   - Update status bar
-     *   - Remove bottle from game
-     */
-    checkBottleCollection() {
-        this.level.groundBottles.forEach((bottle, index) => {
-            if (this.character.isColliding(bottle)) {
-                this.character.bottleCount++;
-                if (this.character.bottleCount > 5) {
-                    this.character.bottleCount = 5;
-                }
-                this.statusBarFlask.setPercentage(this.character.bottleCount * 20);
-                this.level.groundBottles.splice(index, 1);
-            }
-        });
+    checkThrowing() {
+        if (!this.keyboard.SPACE || this.character.bottleCount <= 0) return;
+        const bottle = new ThrowableObject(
+            this.character.x,
+            this.character.y + 100,
+            this.character.otherDirection);
+        this.throwableObjects.push(bottle);
+        this.character.bottleCount--;
+        this.statusBarFlask.setPercentage(this.character.bottleCount * 20);
     }
 
     /**
-     * Check if character collides with coins
-     * If collision detected:
-     *   - Add to character.coinCount
-     *   - Cap at 5 coins max (100%)
-     *   - Update status bar
-     *   - Remove coin from game
+     * Inroduces the endGame to the world, also clears intervals to keep the game running smooth
      */
-    checkCoinCollection() {
-        this.level.coin.forEach((coin, index) => {
-            if (this.character.isColliding(coin)) {
-                this.character.coinCount++;
-                if (this.character.coinCount > 5) {
-                    this.character.coinCount = 5;
-                }
-                this.statusBarCoin.setPercentage(this.character.coinCount * 20);
-                this.level.coin.splice(index, 1);
-            }
-        })
-    }
-
-    /**
-     * Check if character collides with hearts
-     * If collision detected:
-     * the user gets 20 energy and the bar gets updated
-     * if the user already has 100% health, the heart gets erased
-     * 
-     */
-    checkHeartCollection() {
-        this.level.heart.forEach((heart, index) => {
-            if (this.character.isColliding(heart)) {
-                this.character.energy += 20;
-                if (this.character.energy > 100) {
-                    this.character.energy = 100;
-                }
-                this.statusBar.setPercentage(this.character.energy);
-                this.level.heart.splice(index, 1);
-            }
-        })
-    }
-
     endGame(type) {
         if (this.gameEnded) return;
         this.gameEnded = true;
@@ -227,125 +231,173 @@ class World {
             type,
             this.character.coinCount,
             () => this.restartGame(),
-            () => this.mainMenu());
-        this.handleEndClick = (event) => {
-            const rect = canvas.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const y = event.clientY - rect.top;
-            const clicked = this.endScreen.getClickedButton(x, y);
-            if (clicked === "playAgain") {
-                this.endScreen.onRestart();
-            }
-            if (clicked === "mainMenu") {
-                this.endScreen.onMainMenu();
-            }
-        };
-        canvas.addEventListener("click", this.handleEndClick);
+            () => this.mainMenu()
+        );
+        this.canvas.addEventListener("click", this.handleEndClick);
     }
-
-    restartGame() {
-        // remove click listener
-        canvas.removeEventListener("click", this.handleEndClick);
-        showMenu = false;
-        world = new World(canvas, keyboard);
-    }
-
-    mainMenu() {
-        canvas.removeEventListener("click", this.handleEndClick);
-        clearInterval(this.gameLoop);
-        clearInterval(this.intervalRun);
-        showMenu = true;
-        if (menu) menu.destroy();
-        world = null;
-        menu = new Menu(canvas);
-    }
-
-    setWorld() {
-        this.character.world = this;
-    }
-
-    draw() {
-        if (this.gameEnded) {
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this.endScreen.draw(this.ctx);
-            return;
-        }
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.translate(this.camera_x, 0);
-        this.addObjectstoMap(this.level.backgroundObjects);
-        this.ctx.translate(-this.camera_x, 0); // potrebno tako da status bar ostaje uvijek sa igracem okrenuti
-        this.addToMap(this.statusBar);
-        this.addToMap(this.statusBarCoin);
-        this.addToMap(this.statusBarFlask);
-        this.ctx.translate(this.camera_x, 0); // i potrebno je opet vratiti na svoje mjesto 
-        this.addToMap(this.character);
-        if (this.level.endbossActive) {
-            this.addToMap(this.level.endboss);
-            this.bossStatusBar.x = this.level.endboss.x;
-            this.bossStatusBar.y = this.level.endboss.y - 40;
-            let percentage =
-                (this.level.endboss.energy / this.level.endboss.maxEnergy) * 100;
-            this.bossStatusBar.setPercentage(percentage);
-            this.addToMap(this.bossStatusBar);
-        }
-        this.addObjectstoMap(this.level.clouds);
-        this.addObjectstoMap(this.level.groundBottles);
-        this.addObjectstoMap(this.level.coin);
-        this.addObjectstoMap(this.level.heart);
-        this.addObjectstoMap(this.level.enemies);
-        this.addObjectstoMap(this.level.enemiesSmall);
-        this.addObjectstoMap(this.throwableObjects);
-        this.phoneKeys.draw(this.ctx);
-        this.ctx.translate(-this.camera_x, 0);
-    };
 
     /**
-     * 
-     * @param {parameter} objects 
-     * @returns objects added to the map
+     * @param {*} event reacts to what the user clicks 
      */
-    addObjectstoMap(objects) {
-        objects.forEach(o => {
-            this.addToMap(o)
-        })
+    handleEndClick = (event) => {
+        const rect = this.canvas.getBoundingClientRect();
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+        const x = (event.clientX - rect.left) * scaleX;
+        const y = (event.clientY - rect.top) * scaleY;
+        const clicked = this.endScreen.getClickedButton(x, y);
+        if (clicked === "playAgain") this.restartGame();
+        if (clicked === "mainMenu") this.mainMenu();
+    }
+
+    /**
+     * "reloads" the game when the user clicks on the restart game by reloading the world instead of reloading the page 
+     */
+    restartGame() {
+        this.canvas.removeEventListener("click", this.handleEndClick);
+        world = new World(this.canvas, this.keyboard);
+    }
+
+    /**
+     * redirects the user back to main menu 
+     */
+    mainMenu() {
+        this.canvas.removeEventListener("click", this.handleEndClick);
+        showMenu = true;
+        world = null;
+        menu = new Menu(this.canvas);
+    }
+
+    /**
+     * @returns draws the whole world, needed multiple function as this one exceeds the limit of 15 lines of code per function
+     */
+    draw() {
+        if (this.gameEnded) return this.drawEndScreen();
+        this.clearCanvas();
+        this.moveCamera();
+        this.drawWorld();
+        this.resetCamera();
+    }
+
+    /**
+     * Draws the end screen with the image score count and two buttons
+     */
+    drawEndScreen() {
+        this.clearCanvas();
+        this.endScreen.draw(this.ctx);
+    }
+
+    /**
+     * Function needed to clear the "old" movement pictures
+     */
+    clearCanvas() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+
+    /**
+     * needed for moving the camera as the character moves
+     */
+    moveCamera() {
+        this.ctx.translate(this.camera_x, 0);
+    }
+
+    /**
+     * "resets" the camera so that the stats bar stays "glued" to the screen instead of following the character
+     */
+    resetCamera() {
+        this.ctx.translate(-this.camera_x, 0);
+    }
+
+    /**
+     * Needed for drawing the world and only the world objects 
+     */
+    drawWorld() {
+        this.drawBackground();
+        this.drawUI();
+        this.drawGameObjects();
+        this.phoneKeys.draw(this.ctx);
+    }
+
+    /**
+     * Needed for drawing the background objects as the clouds, images etc...
+     */
+    drawBackground() {
+        this.drawObjects(this.level.backgroundObjects);
+        this.drawObjects(this.level.clouds);
+    }
+
+    /**
+     * Draws the statusbars
+     */
+    drawUI() {
+        this.resetCamera();
+        [this.statusBar, this.statusBarCoin, this.statusBarFlask]
+            .forEach(obj => this.addToMap(obj));
+        this.moveCamera();
+    }
+
+    /**
+     * Draws interactive characters as in coins,hearts, flasks etc...
+     */
+    drawGameObjects() {
+        [this.character,
+        this.level.groundBottles,
+        this.level.coin,
+        this.level.heart,
+        this.level.enemies,
+        this.level.enemiesSmall,
+        this.throwableObjects
+        ].forEach(obj => this.drawObjects(obj));
+        this.drawBoss();
+    }
+
+    /**
+     * Draws the endboss with his healthbar
+     */
+    drawBoss() {
+        if (!this.level.endbossActive) return;
+        this.addToMap(this.level.endboss);
+        this.bossStatusBar.x = this.level.endboss.x;
+        this.bossStatusBar.y = this.level.endboss.y - 40;
+        const percent = (this.level.endboss.energy /
+            this.level.endboss.maxEnergy) * 100;
+        this.bossStatusBar.setPercentage(percent);
+        this.addToMap(this.bossStatusBar);
     }
 
     /**
      * 
-     * @param {parameter} mo 
-     * @returns objects added to the map, with the switching of the images when the user runs in other direction
+     * objects to the map
+     */
+    drawObjects(objects) {
+        if (!Array.isArray(objects)) return this.addToMap(objects);
+        objects.forEach(o => this.addToMap(o));
+    }
+
+    /**
+     * Flips the image back when the character turns arround and applys it to the world
      */
     addToMap(mo) {
-        if (mo.otherDirection) {
-            this.flipImage(mo);
-        }
+        if (mo.otherDirection) this.flipImage(mo);
         mo.draw(this.ctx);
-        mo.drawFrame(this.ctx);
-        if (mo.otherDirection) {
-            this.flipImageBack(mo);
-        }
+        if (mo.otherDirection) this.flipImageBack(mo);
     }
 
     /**
-     * 
-     * @param {event} mo 
-     * @returns flips the image of the character for a more natural look
+     * Flips the image back when the character turns arround
      */
     flipImage(mo) {
         this.ctx.save();
         this.ctx.translate(mo.width, 0);
         this.ctx.scale(-1, 1);
-        mo.x = mo.x * - 1; // potrebno jer ctx.translate ne funkcionise bas kako se pise, tako da se sirina objekta mora manipuilisati
+        mo.x *= -1;
     }
 
     /**
-     * 
-     * @param {event} mo 
-     * @returns flips the image back of the character for a more natural look
+     * Restores the camera view back to normal when the character actually turns arround
      */
     flipImageBack(mo) {
-        mo.x = mo.x * - 1;
+        mo.x *= -1;
         this.ctx.restore();
     }
-
 }

@@ -1,110 +1,178 @@
 class Phone extends MovableObject {
 
+    IMAGES_ARROW = [
+        'img/arrow-left.svg',
+        'img/arrow-right.svg',
+        'img/arrow-up.svg',
+        'img/space-key.svg'
+    ]
+
+    IMAGES_SOUND = [
+        'img/sound-max.svg',
+        'img/sound-mute.svg'
+    ]
+
+    IMAGES_FULLSCREEN = [
+        'img/fullscreen.svg',
+        'img/fullscreen-exit.svg'
+    ]
+
     constructor(keyboard, canvas, world) {
         super();
         this.keyboard = keyboard;
         this.canvas = canvas;
         this.world = world;
-        this.buttonSize = 50;
-        this.padding = 10;
+        this.size = 50;
         this.buttons = {};
-        this.setupClickListener();
+        this.init();
+        this.soundMuted = false;
     }
 
-    setupClickListener() {
-        this.canvas.addEventListener('click', (e) => {
-            const rect = this.canvas.getBoundingClientRect();
-            const clickX = e.clientX - rect.left - (this.world ? this.world.camera_x : 0);
-            const clickY = e.clientY - rect.top;
-            this.checkButtonClick(clickX, clickY);});
-        this.canvas.addEventListener('mousedown', (e) => {
-            const rect = this.canvas.getBoundingClientRect();
-            const clickX = e.clientX - rect.left - (this.world ? this.world.camera_x : 0);
-            const clickY = e.clientY - rect.top;
-            this.checkButtonPress(clickX, clickY);});
-        this.canvas.addEventListener('mouseup', () => {
-            this.keyboard.LEFT = false;
-            this.keyboard.RIGHT = false;
-            this.keyboard.UP = false;
-            this.keyboard.SPACE = false;});
+    /**
+     * function for initializing the functions
+     */
+    init() {
+        this.createButtons();
+        this.addListeners();
     }
 
-    updateButtonPositions() {
-        if (!this.world || !this.world.character) return;
-        const c = this.world.character;
-        const plantedY = (this.world.level && this.world.level.groundY) ? this.world.level.groundY : (this.canvas.height - 140);
-        const centerX = c.x + c.width / 2;
-        const topY = plantedY - this.buttonSize - 10;
-        this.buttons.up = { x: centerX - this.buttonSize / 2, y: topY, width: this.buttonSize, height: this.buttonSize };
-        const sideY = topY + Math.round(this.buttonSize * 0.6);
-        const gap = 38;
-        this.buttons.left = { x: centerX - this.buttonSize - gap, y: sideY +50, width: this.buttonSize, height: this.buttonSize  };
-        this.buttons.right = { x: centerX + gap, y: sideY +50, width: this.buttonSize, height: this.buttonSize };
-        this.buttons.space = { x: centerX + this.buttonSize + gap * 2, y: sideY + Math.round(this.buttonSize * 0.2) +50, width: this.buttonSize + 10, height: this.buttonSize };
-        this.buttons.fullscreen = { x: centerX + this.buttonSize + 458, y: topY - Math.round(this.buttonSize * 0.9) - 200, width: this.buttonSize - 6, height: this.buttonSize - 6 };
-        this.buttons.sound = { x: centerX - this.buttonSize - (this.buttonSize - 6) + 458, y: topY - Math.round(this.buttonSize * 0.9) - 200, width: this.buttonSize - 6, height: this.buttonSize - 6 };
+    /**
+     * function that creates "draws" the buttons and adds their function using the keyboard assigned keys
+     */
+    createButtons() {
+        this.buttons = {
+            left: { img: this.loadImage(this.IMAGES_ARROW[0]), press: () => this.keyboard.LEFT = true },
+            right: { img: this.loadImage(this.IMAGES_ARROW[1]), press: () => this.keyboard.RIGHT = true },
+            up: { img: this.loadImage(this.IMAGES_ARROW[2]), press: () => this.keyboard.UP = true },
+            space: { img: this.loadImage(this.IMAGES_ARROW[3]), press: () => this.keyboard.SPACE = true },
+            fullscreen: { img: this.loadImage(this.IMAGES_FULLSCREEN[0]), press: () => this.toggleFullscreen() },
+            sound: { img: this.loadImage(this.IMAGES_SOUND[0]), press: () => this.toggleSound() }
+        };
     }
 
-    checkButtonClick(clickX, clickY) {
-        if (this.isClickInButton(clickX, clickY, this.buttons.fullscreen)) {
-            this.toggleFullscreen();}
-        if (this.isClickInButton(clickX, clickY, this.buttons.sound)) {
-            this.toggleSound();
+    /**
+     * Event listeners for click, touch etc..
+     */
+    addListeners() {
+        this.canvas.addEventListener('pointerdown', e => this.handleEvent(e, 'press'));
+        this.canvas.addEventListener('pointerup', () => this.resetKeys());
+        this.canvas.addEventListener('pointercancel', () => this.resetKeys());
+    }
+    /**
+     * Helper function for registering the click
+     */
+    handleEvent(e, type) {
+        const pos = this.getMousePos(e);
+        for (let key in this.buttons) {
+            const btn = this.buttons[key];
+            if (this.isInside(pos, btn) && btn[type]) btn[type]();
         }
     }
 
-    checkButtonPress(clickX, clickY) {
-        if (this.isClickInButton(clickX, clickY, this.buttons.left)) {
-            this.keyboard.LEFT = true;}
-        if (this.isClickInButton(clickX, clickY, this.buttons.right)) {
-            this.keyboard.RIGHT = true;}
-        if (this.isClickInButton(clickX, clickY, this.buttons.up)) {
-            this.keyboard.UP = true;}
-        if (this.isClickInButton(clickX, clickY, this.buttons.space)) {
-            this.keyboard.SPACE = true;}
+    /**
+     * Helper function needed so that a desktop user can also click on the individual buttons themself
+     */
+    getMousePos(e) {
+        const rect = this.canvas.getBoundingClientRect();
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+        return {
+            x: (e.clientX - rect.left) * scaleX - (this.world?.camera_x || 0),
+            y: (e.clientY - rect.top) * scaleY
+        };
     }
 
-    isClickInButton(clickX, clickY, button) {
-        return clickX >= button.x && 
-               clickX <= button.x + button.width && 
-               clickY >= button.y && 
-               clickY <= button.y + button.height;
+    /**
+     * Resets the state of the buttons
+     */
+    resetKeys() {
+        this.keyboard.LEFT = false;
+        this.keyboard.RIGHT = false;
+        this.keyboard.UP = false;
+        this.keyboard.SPACE = false;
     }
 
+    /**
+     * Returns the needed info on clicked buttons
+     */
+    updatePositions() {
+        if (!this.world?.character) return;
+        const c = this.world.character;
+        const ground = this.world.level?.groundY || this.canvas.height - 140;
+        const cx = c.x + c.width / 2;
+        const top = ground - this.size - 10;
+        const gap = 38;
+        this.setPos('left', cx - this.size - gap, top + 120);
+        this.setPos('right', cx + gap, top + 120);
+        this.setPos('up', cx - this.size / 2, top + 70);
+        this.setPos('space', cx + this.size + gap * 5, top + 120);
+        this.setPos('fullscreen', cx + 458, top - 250);
+        this.setPos('sound', cx + 408, top - 250);
+    }
+
+    /**
+     * Setting the position of the buttons
+     */
+    setPos(name, x, y) {
+        this.buttons[name].x = x;
+        this.buttons[name].y = y;
+        this.buttons[name].width = this.size;
+        this.buttons[name].height = this.size;
+    }
+
+    isInside(pos, btn) {
+        return pos.x >= btn.x &&
+            pos.x <= btn.x + btn.width &&
+            pos.y >= btn.y &&
+            pos.y <= btn.y + btn.height;
+    }
+
+    /**
+     * Main draw function
+     */
     draw(ctx) {
-        this.updateButtonPositions();
-        this.drawButton(ctx, this.buttons.left, '←', 'arrow-left');
-        this.drawButton(ctx, this.buttons.right, '→', 'arrow-right');
-        this.drawButton(ctx, this.buttons.up, '↑', 'arrow-up');
-        this.drawButton(ctx, this.buttons.space, 'throw', 'space');
-        this.drawButton(ctx, this.buttons.fullscreen, '⛶', 'fullscreen');
-        this.drawButton(ctx, this.buttons.sound, '🔊', 'sound');
+        this.updatePositions();
+        for (let key in this.buttons) this.drawButton(ctx, this.buttons[key]);
     }
 
-    drawButton(ctx, button, label) {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-        ctx.fillRect(button.x, button.y, button.width, button.height);
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(button.x, button.y, button.width, button.height);
-        ctx.fillStyle = 'white';
-        ctx.font = 'bold 20px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(label, button.x + button.width / 2, button.y + button.height / 2);
+    /**
+     * Helper function for drawing the images of the buttons
+     */
+    loadImage(path) {
+        let img = new Image();
+        img.src = path;
+        return img;
     }
 
+    /**
+     * Helper function for drawing the buttons
+     */
+    drawButton(ctx, b) {
+        ctx.drawImage(b.img, b.x, b.y, b.width, b.height);
+    }
+
+    /**
+     * Toggles fullscreen mode
+     */
     toggleFullscreen() {
         if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(err => {
-                console.log('Fullscreen error:', err);
-            });
+            document.documentElement.requestFullscreen();
+            this.buttons.fullscreen.img = this.loadImage(this.IMAGES_FULLSCREEN[1])
         } else {
             document.exitFullscreen();
+            this.buttons.fullscreen.img = this.loadImage(this.IMAGES_FULLSCREEN[0])
         }
     }
 
+    /**
+     * Changes the icon and mutes the sound of the game
+     */
     toggleSound() {
-        console.log('Sound toggled');
+        this.soundMuted = !this.soundMuted;
+        if (this.soundMuted) {
+            this.buttons.sound.img = this.loadImage(this.IMAGES_SOUND[1]);
+        } else {
+            this.buttons.sound.img = this.loadImage(this.IMAGES_SOUND[0]);
+        }
     }
 }

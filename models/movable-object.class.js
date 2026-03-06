@@ -6,28 +6,42 @@ class MovableObject extends DrawableObject {
     energy = 100;
     lastHit = 0;
 
+    /**
+     * Applys gravity on the character so when jumping the character falls down
+     */
     applyGravity() {
         this.y -= this.speedY;
         this.speedY -= this.acceleration;
-
         if (this.y > 350) {
             this.y = 350;
-            this.speedY = 0;
-        }
+            this.speedY = 0;}
     }
 
+    /**
+     * @returns Returns the value so it disables the posibility of double jumping inside game
+     */
     isAboveGround() {
         return this.y < 180;
     }
 
+     /**
+     * Helper function for moving right
+     */
     moveRight() {
         this.x += this.speed;
     }
 
+    /**
+     * Helper function for moving left
+     */
     moveLeft() {
         this.x -= this.speed;
     }
 
+    /**
+     * @param {Object} images 
+     * Loads the images inside the imageChache and plays the needed animations
+     */
     playAnimation(images) {
         let i = this.currentImage % images.length;
         let path = images[i];
@@ -35,10 +49,16 @@ class MovableObject extends DrawableObject {
         this.currentImage++;
     }
 
+    /**
+     * Helper function for jumps
+     */
     jump() {
         this.speedY = 25;
     }
 
+    /**
+     * Helper function for registering hits
+     */
     hit() {
         this.energy -= 5;
         if (this.energy < 0) {
@@ -48,10 +68,18 @@ class MovableObject extends DrawableObject {
         }
     }
 
+    /**
+     * 
+     * @returns if the energy of the character reaches 0
+     */
     isDead() {
         return this.energy == 0;
     }
 
+    /**
+     * 
+     * @returns registers hits on a character 
+     */
     isHurt() {
         let timepassed = new Date().getTime() - this.lastHit;
         timepassed = timepassed / 1000;

@@ -3,10 +3,8 @@ class Endboss extends MovableObject {
     height = 400;
     width = 250;
     y = 60;
-
     energy = 100;
     maxEnergy = 100;
-
     lastHit = 0;
     isDeadAnimationPlayed = false;
     IMAGES_WALKING = [
@@ -51,12 +49,18 @@ class Endboss extends MovableObject {
                 this.playAnimation(this.IMAGES_WALKING);
             }}, 200);
     }
-
+    /**
+     * 
+     * @returns Can only be struck with a bottle, needs two hits to be dead
+     */
     isRecentlyHurt() {
         let timePassed = new Date().getTime() - this.lastHit;
         return timePassed < 600;
     }
 
+    /**
+     * If EndBoss is dead the animation is going to be played which proceeds with the gameover endscreen
+     */
     handleDeath() {
         if (!this.isDeadAnimationPlayed) {
             this.playAnimation(this.IMAGES_DEAD);
@@ -67,6 +71,9 @@ class Endboss extends MovableObject {
         }
     }
 
+    /**
+     * Endboss registers hit
+     */
     hit() {
         if (this.energy <= 0) return;
         this.energy -= 20;

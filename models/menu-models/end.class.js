@@ -19,18 +19,19 @@ class EndGame extends DrawableObject {
         );
         const rightX = canvas.width * 0.65;
         const centerY = canvas.height / 2;
-        // Buttons
+
         this.buttons.playAgain.x = rightX;
         this.buttons.playAgain.y = centerY + 10;
         this.buttons.mainMenu.x = rightX;
         this.buttons.mainMenu.y = centerY + 80;
     }
 
+    /**
+     * Main draw function that draws the main endgame 
+     */
     draw(ctx) {
         ctx.fillStyle = "black";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // LEFT: image
         ctx.drawImage(
             this.img,
             canvas.width * 0.1,
@@ -39,7 +40,6 @@ class EndGame extends DrawableObject {
             350
         );
 
-        // RIGHT: score
         if (this.type === "won") {
             ctx.fillStyle = "white";
             ctx.font = "32px Arial";
@@ -51,11 +51,13 @@ class EndGame extends DrawableObject {
             );
         }
 
-        // Buttons
         this.drawButton(ctx, this.buttons.playAgain, "Play Again");
         this.drawButton(ctx, this.buttons.mainMenu, "Main Menu");
     }
 
+    /**
+     * Draws the buttons
+     */
     drawButton(ctx, btn, text) {
         ctx.fillStyle = "#FFDD00";
         ctx.fillRect(btn.x, btn.y, btn.width, btn.height);
@@ -69,12 +71,18 @@ class EndGame extends DrawableObject {
         );
     }
 
+    /**
+     * Reacts to the clicked buttons inside the game
+     */
     getClickedButton(x, y) {
         if (this.isInside(this.buttons.playAgain, x, y)) return "playAgain";
         if (this.isInside(this.buttons.mainMenu, x, y)) return "mainMenu";
         return null;
     }
 
+    /**
+     * Centers the text inside the buttons
+     */
     isInside(btn, x, y) {
         return (
             x >= btn.x &&
