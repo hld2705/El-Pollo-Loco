@@ -13,7 +13,9 @@ class Coin extends DrawableObject {
         this.height = 200;
     }
 
-
+    /**
+     * Updates the status bar and the index by loading the imageCache
+     */
     update() {
         let path = this.IMAGE_COIN[this.currentImageIndex];
         this.img = this.imageCache[path];

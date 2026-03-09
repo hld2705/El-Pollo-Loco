@@ -56,6 +56,9 @@ class ThrowableObject extends MovableObject {
         }, 25);
     }
 
+    /**
+     * Updates and plays the animations
+     */
     update() {
         if (this.isSplashing) {
             this.playAnimation(this.IMAGES_BOTTLE_SPLASH);

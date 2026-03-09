@@ -21,12 +21,18 @@ class StatusBarFlask extends DrawableObject {
         this.setPercentage(0);
     }
 
+    /**
+     * Sets the percentage of the collectable bottles
+     */
     setPercentage(percentage) {
         this.percentage = percentage;
         let path = this.IMAGES_BOTTLE[this.resolveImageIndex()];
         this.img = this.imageCache[path];
     }
 
+    /**
+     * Sets the percentage of the collectable bottles
+     */
     resolveImageIndex() {
         if (this.percentage == 100) {
             return 5;

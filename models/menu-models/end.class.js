@@ -19,7 +19,6 @@ class EndGame extends DrawableObject {
         );
         const rightX = canvas.width * 0.65;
         const centerY = canvas.height / 2;
-
         this.buttons.playAgain.x = rightX;
         this.buttons.playAgain.y = centerY + 10;
         this.buttons.mainMenu.x = rightX;
@@ -39,7 +38,6 @@ class EndGame extends DrawableObject {
             350,
             350
         );
-
         if (this.type === "won") {
             ctx.fillStyle = "white";
             ctx.font = "32px Arial";

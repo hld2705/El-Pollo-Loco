@@ -14,7 +14,6 @@ class DrawableObject {
     }
 
     /**
-     * 
      * @param {canvas} ctx main function for drawing all the characters on the map 
      */
     draw(ctx) {
@@ -22,9 +21,9 @@ class DrawableObject {
     }
 
     /**
-   * 
-   * @param {Array} arr  ['img/image1.png', 'img/image2.png', ...]
-   */
+     * 
+     * @param {Array} arr  ['img/image1.png', 'img/image2.png', ...]
+     */
     loadImages(arr) {
         arr.forEach(path => {
             let img = new Image();

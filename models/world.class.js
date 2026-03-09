@@ -1,5 +1,5 @@
 class World {
-    constructor(canvas, keyboard) {
+    constructor(canvas, keyboard, audio) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
         this.keyboard = keyboard;
@@ -12,6 +12,7 @@ class World {
         this.bossStatusBar = this.createBossBar();
         this.throwableObjects = [];
         this.phoneKeys = new Phone(this.keyboard, this.canvas, this);
+        this.audio = audio;
         this.camera_x = 0;
         this.gameEnded = false;
         this.start();
@@ -87,8 +88,11 @@ class World {
             this.level.enemiesSmall.filter(e => !e.shouldBeRemoved);
         if (this.level.enemies.length === 0 &&
             this.level.enemiesSmall.length === 0 &&
-            this.level.endboss
-        ) { this.level.endbossActive = true; }
+            this.level.endboss &&
+            !this.level.endbossActive) 
+            {this.level.endbossActive = true;
+            this.audio.playMusic("boss");
+        }
     }
 
     /**
@@ -225,15 +229,16 @@ class World {
     endGame(type) {
         if (this.gameEnded) return;
         this.gameEnded = true;
+        this.audio.stopAll();
+        if (type === "won") { this.audio.playMusic("gamewonmusic"); } else { this.audio.playMusic("gameovermusic"); }
         clearInterval(this.gameLoop);
         clearInterval(this.intervalRun);
         this.endScreen = new EndGame(
             type,
             this.character.coinCount,
             () => this.restartGame(),
-            () => this.mainMenu()
-        );
-        this.canvas.addEventListener("click", this.handleEndClick);
+            () => this.mainMenu());
+        this.canvas.addEventListener("pointerdown", this.handleEndClick);
     }
 
     /**
@@ -246,8 +251,8 @@ class World {
         const x = (event.clientX - rect.left) * scaleX;
         const y = (event.clientY - rect.top) * scaleY;
         const clicked = this.endScreen.getClickedButton(x, y);
-        if (clicked === "playAgain") this.restartGame();
-        if (clicked === "mainMenu") this.mainMenu();
+        if (clicked === "playAgain") this.restartGame(), this.audio.playMusic("ingame");
+        if (clicked === "mainMenu") this.mainMenu(), this.audio.playMusic("menu");
     }
 
     /**
@@ -255,7 +260,7 @@ class World {
      */
     restartGame() {
         this.canvas.removeEventListener("click", this.handleEndClick);
-        world = new World(this.canvas, this.keyboard);
+        world = new World(this.canvas, this.keyboard, this.audio);
     }
 
     /**
@@ -265,7 +270,7 @@ class World {
         this.canvas.removeEventListener("click", this.handleEndClick);
         showMenu = true;
         world = null;
-        menu = new Menu(this.canvas);
+        menu = new Menu(this.canvas, this.audio);
     }
 
     /**

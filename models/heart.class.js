@@ -13,6 +13,9 @@ class Heart extends DrawableObject {
         this.height = 60;
     }
 
+    /**
+     * Loads the image inside the cache, and updates the index of the counter
+     */
     update() {
         let path = this.IMAGE_COIN[this.currentImageIndex];
         this.img = this.imageCache[path];

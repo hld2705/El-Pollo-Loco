@@ -1,6 +1,7 @@
 class Menu {
-  constructor(canvas) {
+  constructor(canvas,audio) {
     this.canvas = canvas;
+    this.audio = audio;
     this.x = canvas.width / 2;
     this.y = canvas.height / 2;
     this.bgImage = new Image();
@@ -9,6 +10,9 @@ class Menu {
     canvas.addEventListener('pointerdown', this.clickHandler);
   }
 
+  /**
+   * Removes the event listener from the menu
+   */
   destroy() {
     this.canvas.removeEventListener("pointerdown", this.clickHandler);
   }
@@ -38,6 +42,7 @@ class Menu {
    */
   handleClick(e) {
     if (!showMenu) return;
+    this.audio.playMusic("menu");
     const rect = this.canvas.getBoundingClientRect();
     const scaleX = this.canvas.width / rect.width;
     const scaleY = this.canvas.height / rect.height;
@@ -46,7 +51,8 @@ class Menu {
     if (mouseY > this.y + 20 && mouseY < this.y + 60) {
       this.destroy();
       showMenu = false;
-      world = new World(canvas, keyboard);
+      world = new World(canvas, keyboard, this.audio);
+      this.audio.playMusic("ingame");
     }
     if (mouseX > this.x - 100 && mouseX < this.x + 100 && mouseY > this.y - 10 && mouseY < this.y + 10) {
       menu = new Tutorial(this.canvas);

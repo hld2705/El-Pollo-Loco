@@ -120,6 +120,9 @@ class Phone extends MovableObject {
         this.buttons[name].height = this.size;
     }
 
+    /**
+     * checks whether a point is inside a rectangular button area
+     */
     isInside(pos, btn) {
         return pos.x >= btn.x &&
             pos.x <= btn.x + btn.width &&
@@ -168,7 +171,8 @@ class Phone extends MovableObject {
      * Changes the icon and mutes the sound of the game
      */
     toggleSound() {
-        this.soundMuted = !this.soundMuted;
+        this.world.audio.toggleMute();
+        this.soundMuted = this.world.audio.muted;
         if (this.soundMuted) {
             this.buttons.sound.img = this.loadImage(this.IMAGES_SOUND[1]);
         } else {

@@ -38,9 +38,12 @@ class SmallChicken extends MovableObject {
             } else{
                 this.jump();
             }
-        }, 2000 + Math.random() * 2000); // Jumps every 2-4 seconds randomly
+        }, 2000 + Math.random() * 2000);
     }
 
+    /**
+     * Updates the animations needed for the chickens
+     */
     update() {
         this.applyGravity();
         if (this.isDead()) {

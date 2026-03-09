@@ -4,6 +4,7 @@ let keyboard = new Keyboard();
 let gameState = "loading";
 let showMenu = true;
 let menu = null;
+let audio = new AudioManager();
 
 /**
  * initializing function for the game
@@ -11,7 +12,7 @@ let menu = null;
 function init() {
     canvas = document.getElementById("canvas");
     //loadGameAnimation()
-    menu = new Menu(canvas);
+    menu = new Menu(canvas,audio);
     draw();
     canvas.addEventListener("mousemove", (e) => {
     if (menu && menu.isHovering) {
@@ -31,7 +32,7 @@ async function loadGameAnimation() {
     await new Promise(resolve => setTimeout(resolve, 4000));
     loadingscreen.innerHTML = "";
     gameState = "menu";
-    menu = new Menu(canvas);
+    menu = new Menu(canvas,audio);
 }
 
 /**

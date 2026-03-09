@@ -32,14 +32,15 @@ class Tutorial extends Menu {
     }
   }
 
+  /**
+   * Needed for having the hover effect on the buttons for desktop users 
+   */
   isHovering(e) {
     const rect = this.canvas.getBoundingClientRect();
     const mouseY = e.clientY - rect.top;
-
     if (mouseY > this.y + 90 && mouseY < this.y + 120) {
       return true;
     }
-
     return false;
   }
 }

@@ -49,8 +49,8 @@ class Endboss extends MovableObject {
                 this.playAnimation(this.IMAGES_WALKING);
             }}, 200);
     }
+
     /**
-     * 
      * @returns Can only be struck with a bottle, needs two hits to be dead
      */
     isRecentlyHurt() {
