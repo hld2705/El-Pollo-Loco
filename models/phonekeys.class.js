@@ -46,8 +46,7 @@ class Phone extends MovableObject {
             up: { img: this.loadImage(this.IMAGES_ARROW[2]), press: () => this.keyboard.UP = true },
             space: { img: this.loadImage(this.IMAGES_ARROW[3]), press: () => this.keyboard.SPACE = true },
             fullscreen: { img: this.loadImage(this.IMAGES_FULLSCREEN[0]), press: () => this.toggleFullscreen() },
-            sound: { img: this.loadImage(this.IMAGES_SOUND[0]), press: () => this.toggleSound() }
-        };
+            sound: {img: this.loadImage(this.IMAGES_SOUND[0]),press: () => this.toggleSound() } };
     }
 
     /**
@@ -158,16 +157,16 @@ class Phone extends MovableObject {
      * Toggles fullscreen mode
      */
     toggleFullscreen() {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen();
-            this.buttons.fullscreen.img = this.loadImage(this.IMAGES_FULLSCREEN[1])
-        } else {
+        if (document.fullscreenElement === this.canvas) {
             document.exitFullscreen();
-            this.buttons.fullscreen.img = this.loadImage(this.IMAGES_FULLSCREEN[0])
+            this.buttons.fullscreen.img = this.loadImage(this.IMAGES_FULLSCREEN[0]);
+        } else {
+            this.canvas.requestFullscreen();
+            this.buttons.fullscreen.img = this.loadImage(this.IMAGES_FULLSCREEN[1]);
         }
     }
 
-    /**
+     /**
      * Changes the icon and mutes the sound of the game
      */
     toggleSound() {
@@ -175,8 +174,10 @@ class Phone extends MovableObject {
         this.soundMuted = this.world.audio.muted;
         if (this.soundMuted) {
             this.buttons.sound.img = this.loadImage(this.IMAGES_SOUND[1]);
+            localStorage.setItem("gameMuted", "false");
         } else {
             this.buttons.sound.img = this.loadImage(this.IMAGES_SOUND[0]);
+            localStorage.setItem("gameMuted", "true");
         }
     }
 }

@@ -60,7 +60,8 @@ class MovableObject extends DrawableObject {
      * Helper function for registering hits
      */
     hit() {
-        this.energy -= 5;
+        this.energy -= 20;
+        
         if (this.energy < 0) {
             this.energy = 0;
         } else {

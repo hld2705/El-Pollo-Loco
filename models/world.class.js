@@ -11,8 +11,8 @@ class World {
         this.statusBarFlask = new StatusBarFlask();
         this.bossStatusBar = this.createBossBar();
         this.throwableObjects = [];
-        this.phoneKeys = new Phone(this.keyboard, this.canvas, this);
         this.audio = audio;
+        this.phoneKeys = new Phone(this.keyboard, this.canvas, this);
         this.camera_x = 0;
         this.gameEnded = false;
         this.start();
@@ -128,6 +128,7 @@ class World {
      */
     checkCollisions() {
         this.level.getAllEnemies().forEach(enemy => {
+            if(enemy.isDead()) return;
             if (!this.character.isColliding(enemy)) return;
             const fromTop = this.character.y + this.character.height - 20 < enemy.y;
             fromTop ? this.killEnemy(enemy) : this.damageCharacter();
@@ -258,10 +259,11 @@ class World {
     /**
      * "reloads" the game when the user clicks on the restart game by reloading the world instead of reloading the page 
      */
-    restartGame() {
-        this.canvas.removeEventListener("click", this.handleEndClick);
-        world = new World(this.canvas, this.keyboard, this.audio);
-    }
+   restartGame() {
+    this.canvas.removeEventListener("click", this.handleEndClick);
+    world = new World(this.canvas, this.keyboard, this.audio);
+    this.audio.playMusic("ingame");
+}
 
     /**
      * redirects the user back to main menu 
