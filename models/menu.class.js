@@ -24,33 +24,40 @@ class Menu {
   }
 
   /**
-   * 
    * @param {canvas} ctx draws the circle in which the commands are contained
    */
   draw(ctx) {
     if (this.bgImage.complete) {
-      ctx.drawImage(this.bgImage, 0, 0, 720, 480);
-    }
+      ctx.drawImage(this.bgImage, 0, 0, 720, 480);}
     ctx.fillStyle = "white";
     ctx.strokeStyle = "black"
     ctx.font = "38px Sancreek";
     ctx.textAlign = "center";
-    ctx.font = this.hoverPlay ? "44px Sancreek" : "38px Sancreek";
-    ctx.fillStyle = this.hoverPlay ? "yellow" : "white";
-    ctx.fillText("PLAY", this.x, this.y + 40);
-    ctx.strokeText("PLAY", this.x, this.y + 40);
-    ctx.font = this.hoverTutorial ? "44px Sancreek" : "38px Sancreek";
-    ctx.fillStyle = this.hoverTutorial ? "yellow" : "white";
-    ctx.fillText("TUTORIAL", this.x, this.y);
-    ctx.strokeText("TUTORIAL", this.x, this.y);
-    ctx.font = this.hoverImpressum ? "44px Sancreek" : "38px Sancreek";
-    ctx.fillStyle = this.hoverImpressum ? "yellow" : "white";
-    ctx.fillText("IMPRESSUM", this.x, this.y - 40);
-    ctx.strokeText("IMPRESSUM", this.x, this.y - 40);
+    let btnWidth = 200;
+    let btnHeight = 50;
+    let btnX = this.x - btnWidth / 2;
+    let btnY = this.y + 10;
+    ctx.strokeRect(btnX, btnY, btnWidth, btnHeight);
+    ctx.fillStyle = "white";
+    ctx.font = "32px Sancreek";
+    ctx.textAlign = "center";
+    this.drawButton(ctx, "IMPRESSUM", this.x, this.y - 60, 220, 50, this.hoverImpressum);
+    this.drawButton(ctx, "TUTORIAL", this.x, this.y, 220, 50, this.hoverTutorial);
+    this.drawButton(ctx, "PLAY", this.x, this.y + 60, 220, 50, this.hoverPlay);
+  }
+
+  drawButton(ctx, text, x, y, width, height, hover) {
+    ctx.fillStyle = hover ? "#f4b942" : "#8b5a2b";
+    ctx.fillRect(x - width / 2, y - height / 2, width, height);
+    ctx.strokeStyle = "black";
+    ctx.strokeRect(x - width / 2, y - height / 2, width, height);
+    ctx.fillStyle = "white";
+    ctx.font = "30px Sancreek";
+    ctx.textAlign = "center";
+    ctx.fillText(text, x, y + 10);
   }
 
   /**
-   * 
    * @param {Element} e parameter is listening to the user clicks
    * @returns the correct screen according to where the user clicks
    */
@@ -65,16 +72,13 @@ class Menu {
     if (mouseY > this.y + 20 && mouseY < this.y + 60) {
       this.destroy(); showMenu = false;
       world = new World(canvas, keyboard, this.audio);
-      this.audio.playMusic("ingame");
-    }
+      this.audio.playMusic("ingame");}
     if (mouseX > this.x - 100 && mouseX < this.x + 100 && mouseY > this.y - 10 && mouseY < this.y + 10) {
-      this.destroy();
-      menu = new Tutorial(this.canvas);
-    }
+      this.destroy(); 
+      menu = new Tutorial(this.canvas, this.audio);}
     if (mouseX > this.x - 100 && mouseX < this.x + 100 && mouseY > this.y - 60 && mouseY < this.y - 20) {
-      this.destroy();
-      menu = new Impressum(this.canvas);
-    }
+      this.destroy(); 
+      menu = new Impressum(this.canvas, this.audio);}
   }
 
   /**
@@ -95,7 +99,6 @@ class Menu {
   }
 
   /**
-   * 
    * @param {event} e notices that the user is hovering over an object
    * @returns cursor = "pointer"
    */
@@ -104,13 +107,10 @@ class Menu {
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
     if (mouseY > this.y + 20 && mouseY < this.y + 60) {
-      return true;
-    }
+      return true;}
     if (mouseX > this.x - 100 && mouseX < this.x + 100 && mouseY > this.y - 10 && mouseY < this.y + 10) {
-      return true;
-    }
-    if (mouseX > this.x - 100 && mouseX < this.x + 100 && mouseY > this.y - 60 && mouseY < this.y - 20){
-      return true;
-    }
+      return true;}
+    if (mouseX > this.x - 100 && mouseX < this.x + 100 && mouseY > this.y - 60 && mouseY < this.y - 20) {
+      return true;}
   }
 }

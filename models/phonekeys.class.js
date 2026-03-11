@@ -46,16 +46,29 @@ class Phone extends MovableObject {
             up: { img: this.loadImage(this.IMAGES_ARROW[2]), press: () => this.keyboard.UP = true },
             space: { img: this.loadImage(this.IMAGES_ARROW[3]), press: () => this.keyboard.SPACE = true },
             fullscreen: { img: this.loadImage(this.IMAGES_FULLSCREEN[0]), press: () => this.toggleFullscreen() },
-            sound: {img: this.loadImage(this.IMAGES_SOUND[0]),press: () => this.toggleSound() } };
+            sound: { img: this.loadImage(this.IMAGES_SOUND[0]), press: () => this.toggleSound() }
+        };
     }
 
     /**
      * Event listeners for click, touch etc..
      */
     addListeners() {
-        this.canvas.addEventListener('pointerdown', e => this.handleEvent(e, 'press'));
-        this.canvas.addEventListener('pointerup', () => this.resetKeys());
-        this.canvas.addEventListener('pointercancel', () => this.resetKeys());
+        this.pointerDownHandler = (e) => this.handleEvent(e, 'press');
+        this.pointerUpHandler = () => this.resetKeys();
+        this.pointerCancelHandler = () => this.resetKeys();
+        this.canvas.addEventListener('pointerdown', this.pointerDownHandler);
+        this.canvas.addEventListener('pointerup', this.pointerUpHandler);
+        this.canvas.addEventListener('pointercancel', this.pointerCancelHandler);
+    }
+
+    /**
+     * Function needed to destroy all of the listeners
+     */
+    destroy() {
+        if (this.pointerDownHandler) this.canvas.removeEventListener('pointerdown', this.pointerDownHandler);
+        if (this.pointerUpHandler) this.canvas.removeEventListener('pointerup', this.pointerUpHandler);
+        if (this.pointerCancelHandler) this.canvas.removeEventListener('pointercancel', this.pointerCancelHandler);
     }
     /**
      * Helper function for registering the click
@@ -166,18 +179,17 @@ class Phone extends MovableObject {
         }
     }
 
-     /**
-     * Changes the icon and mutes the sound of the game
-     */
+    /**
+    * Changes the icon and mutes the sound of the game
+    */
     toggleSound() {
         this.world.audio.toggleMute();
         this.soundMuted = this.world.audio.muted;
         if (this.soundMuted) {
             this.buttons.sound.img = this.loadImage(this.IMAGES_SOUND[1]);
-            localStorage.setItem("gameMuted", "false");
         } else {
             this.buttons.sound.img = this.loadImage(this.IMAGES_SOUND[0]);
-            localStorage.setItem("gameMuted", "true");
         }
+        localStorage.setItem("gameMuted", this.soundMuted ? "true" : "false");
     }
 }

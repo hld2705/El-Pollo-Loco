@@ -168,16 +168,8 @@ class World {
      */
     hitEnemiesWithBottle(bottle) {
         this.level.getAllEnemies().forEach(enemy => {
-            if (bottle.isColliding(enemy)) {
-                enemy.hit();
-                bottle.splashBottle();
-            }
-        });
-        if (this.level.endbossActive &&
-            bottle.isColliding(this.level.endboss)) {
-            this.level.endboss.hit();
-            bottle.splashBottle();
-        }
+            if (bottle.isColliding(enemy)) { enemy.hit(); bottle.splashBottle();}});
+        if (this.level.endbossActive && bottle.isColliding(this.level.endboss)) { this.level.endboss.hit(); bottle.splashBottle();}
     }
 
     /**
@@ -186,29 +178,29 @@ class World {
     checkCollections() {
         this.collectItems(this.level.groundBottles, () => {
             this.character.bottleCount = Math.min(5, this.character.bottleCount + 1);
-            this.statusBarFlask.setPercentage(this.character.bottleCount * 20)
-        });
+            this.statusBarFlask.setPercentage(this.character.bottleCount * 20)});
         this.collectItems(this.level.coin, () => {
             this.character.coinCount = Math.min(5, this.character.coinCount + 1);
-            this.statusBarCoin.setPercentage(this.character.coinCount * 20)
-        });
+            this.statusBarCoin.setPercentage(this.character.coinCount * 20)});
         this.collectItems(this.level.heart, () => {
             this.character.energy = Math.min(100, this.character.energy + 20);
-            this.statusBar.setPercentage(this.character.energy)
-        });
+            this.statusBar.setPercentage(this.character.energy)});
     }
 
     /**
      * "collects" items so that deletes the items once the character hovers over them
      */
-    collectItems(array, onCollect) {
-        array.forEach((item, index) => {
-            if (this.character.isColliding(item)) {
-                onCollect();
-                array.splice(index, 1);
-            }
-        });
-    }
+  collectItems(array, onCollect) {
+    array.forEach((item, index) => {
+        const bufferX = item.width * 0.1;
+        const bufferY = item.height * 0.1;
+        const char = this.character;
+        const collided = char.x + char.width > item.x + bufferX && char.x < item.x + item.width - bufferX && char.y + char.height > item.y + bufferY &&
+            char.y < item.y + item.height - bufferY;
+        if (collided) {
+            onCollect();
+            array.splice(index, 1);}});
+}
 
     /**
      * Updates the flask bar when the user throws
@@ -234,11 +226,7 @@ class World {
         if (type === "won") { this.audio.playMusic("gamewonmusic"); } else { this.audio.playMusic("gameovermusic"); }
         clearInterval(this.gameLoop);
         clearInterval(this.intervalRun);
-        this.endScreen = new EndGame(
-            type,
-            this.character.coinCount,
-            () => this.restartGame(),
-            () => this.mainMenu());
+        this.endScreen = new EndGame(type,this.character.coinCount,() => this.restartGame(), () => this.mainMenu());
         this.canvas.addEventListener("pointerdown", this.handleEndClick);
     }
 
@@ -260,7 +248,8 @@ class World {
      * "reloads" the game when the user clicks on the restart game by reloading the world instead of reloading the page 
      */
    restartGame() {
-    this.canvas.removeEventListener("click", this.handleEndClick);
+    this.canvas.removeEventListener("pointerdown", this.handleEndClick);
+    this.phoneKeys.destroy();
     world = new World(this.canvas, this.keyboard, this.audio);
     this.audio.playMusic("ingame");
 }
@@ -269,7 +258,8 @@ class World {
      * redirects the user back to main menu 
      */
     mainMenu() {
-        this.canvas.removeEventListener("click", this.handleEndClick);
+        this.canvas.removeEventListener("pointerdown", this.handleEndClick);
+        this.phoneKeys.destroy();
         showMenu = true;
         world = null;
         menu = new Menu(this.canvas, this.audio);

@@ -1,6 +1,6 @@
 class Impressum extends Menu {
   constructor(canvas) {
-    super(canvas);
+    super(canvas, audio);
     this.hoverBack = false;
     this.canvas.style.cursor = "default";
   }
@@ -33,9 +33,8 @@ class Impressum extends Menu {
     const scaleY = this.canvas.height / rect.height;
     const mouseY = (e.clientY - rect.top) * scaleY;
     if (mouseY > this.y + 60 && mouseY < this.y + 100) {
-      this.destroy();
       this.canvas.style.cursor = "default";
-      menu = new Menu(this.canvas);
+      menu = new Menu(this.canvas, this.audio);
     }
   }
 
@@ -46,10 +45,8 @@ class Impressum extends Menu {
     const rect = this.canvas.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
-
     const withinBackX = mouseX > this.x - 100 && mouseX < this.x + 100;
     const withinBackY = mouseY > this.y + 60 && mouseY < this.y + 100;
-
     this.hoverBack = withinBackX && withinBackY;
     this.canvas.style.cursor = this.hoverBack ? "pointer" : "default";
   }
