@@ -12,15 +12,34 @@ let audio = new AudioManager();
 function init() {
     canvas = document.getElementById("canvas");
     //loadGameAnimation()
-    menu = new Menu(canvas,audio);
+    menu = new Menu(canvas, audio);
     draw();
     canvas.addEventListener("mousemove", (e) => {
-    if (menu && menu.isHovering) {
-        canvas.style.cursor = menu.isHovering(e) ? "pointer" : "default";
-    } else {
-        canvas.style.cursor = "default";
-    }
-});
+        if (menu && menu.isHovering) {
+            canvas.style.cursor = menu.isHovering(e) ? "pointer" : "default";} else { canvas.style.cursor = "default";}});
+}
+
+ /**
+   * Draws a message, informing the user that he should rotate his phone, in order to play fullscreen
+   */
+function drawRotateMessage(ctx, canvas) {
+    ctx.fillStyle = "rgba(0,0,0,0.8)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "white";
+    ctx.textAlign = "center";
+    ctx.font = "30px Sancreek";
+    ctx.fillText("Rotate your phone", canvas.width / 2, canvas.height / 2 - 20);
+
+    ctx.font = "20px Sancreek";
+    ctx.fillText("Please play in landscape mode", canvas.width / 2, canvas.height / 2 + 20);
+}
+
+/**
+ * @returns The parrameter if the users phone is tilted, i.e. if the window.innerWidth is lower than 900px
+ */
+function isPortraitMobile() {
+    return window.innerWidth < 900 && window.innerHeight > window.innerWidth;
 }
 
 /**
@@ -32,7 +51,7 @@ async function loadGameAnimation() {
     await new Promise(resolve => setTimeout(resolve, 4000));
     loadingscreen.innerHTML = "";
     gameState = "menu";
-    menu = new Menu(canvas,audio);
+    menu = new Menu(canvas, audio);
 }
 
 /**
@@ -40,7 +59,13 @@ async function loadGameAnimation() {
  */
 function draw() {
     const ctx = canvas.getContext('2d');
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (isPortraitMobile()) {
+        drawRotateMessage(ctx, canvas);
+        requestAnimationFrame(draw);
+        return;}
+
     if (showMenu) {
         if (menu) menu.draw(ctx);
     } else if (world) {

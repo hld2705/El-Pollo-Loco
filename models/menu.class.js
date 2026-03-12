@@ -113,4 +113,5 @@ class Menu {
     if (mouseX > this.x - 100 && mouseX < this.x + 100 && mouseY > this.y - 60 && mouseY < this.y - 20) {
       return true;}
   }
+
 }
