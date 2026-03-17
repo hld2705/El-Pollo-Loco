@@ -179,16 +179,13 @@ class World {
     checkCollections() {
         this.collectItems(this.level.groundBottles, () => {
             this.character.bottleCount = Math.min(5, this.character.bottleCount + 1);
-            this.statusBarFlask.setPercentage(this.character.bottleCount * 20)
-        });
+            this.statusBarFlask.setPercentage(this.character.bottleCount * 20)});
         this.collectItems(this.level.coin, () => {
             this.character.coinCount = Math.min(5, this.character.coinCount + 1);
-            this.statusBarCoin.setPercentage(this.character.coinCount * 20)
-        });
+            this.statusBarCoin.setPercentage(this.character.coinCount * 20)});
         this.collectItems(this.level.heart, () => {
             this.character.energy = Math.min(100, this.character.energy + 20);
-            this.statusBar.setPercentage(this.character.energy)
-        });
+            this.statusBar.setPercentage(this.character.energy)});
     }
 
     /**

@@ -26,6 +26,7 @@ class Phone extends MovableObject {
         this.buttons = {};
         this.init();
         this.soundMuted = false;
+        this.syncSoundIcon();
     }
 
     /**
@@ -133,6 +134,18 @@ class Phone extends MovableObject {
     }
 
     /**
+     * Helper function for syncing the sound icon, when its muted and game reloaded the icon gets carried over
+     */
+    syncSoundIcon() {
+        this.soundMuted = this.world.audio.muted;
+        if (this.soundMuted) {
+            this.buttons.sound.img = this.loadImage(this.IMAGES_SOUND[1]);
+        } else {
+            this.buttons.sound.img = this.loadImage(this.IMAGES_SOUND[0]);
+        }
+    }
+
+    /**
      * checks whether a point is inside a rectangular button area
      */
     isInside(pos, btn) {
@@ -183,13 +196,7 @@ class Phone extends MovableObject {
     * Changes the icon and mutes the sound of the game
     */
     toggleSound() {
-        this.world.audio.toggleMute();
-        this.soundMuted = this.world.audio.muted;
-        if (this.soundMuted) {
-            this.buttons.sound.img = this.loadImage(this.IMAGES_SOUND[1]);
-        } else {
-            this.buttons.sound.img = this.loadImage(this.IMAGES_SOUND[0]);
-        }
-        localStorage.setItem("gameMuted", this.soundMuted ? "true" : "false");
-    }
+    this.world.audio.toggleMute();
+    this.syncSoundIcon();
+}
 }

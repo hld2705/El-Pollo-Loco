@@ -20,6 +20,8 @@ class Chicken extends MovableObject {
         this.x = 600 + Math.random() * 500;
         this.speed = 0.15 + Math.random() * 0.5;
         this.energy = 5;
+        this.animationCounter = 0;
+        this.animationSpeed = 8;
         this.shouldBeRemoved = false;
         this.update();
     }
@@ -27,16 +29,16 @@ class Chicken extends MovableObject {
     /**
      * needed to animate the chickens going left at a constant speed, being spawned by the Math.random() method 
      */
-    update() {
-        if (this.isDead()) {
-            this.playAnimation(this.IMAGES_DEAD);
-            this.speed = 0;
-            setTimeout(() => {
-                this.shouldBeRemoved = true;
-            }, 2000);
-        } else {
-            this.moveLeft();
-            this.playAnimation(this.IMAGES_WALKING);
-        }
+  update() {
+    this.animationCounter++;
+    if (this.isDead()) {
+        if (this.animationCounter % this.animationSpeed === 0) {
+            this.playAnimation(this.IMAGES_DEAD);}
+        this.speed = 0;
+        setTimeout(() => {this.shouldBeRemoved = true;}, 2000);
+    } else {this.moveLeft();
+        if (this.animationCounter % this.animationSpeed === 0) {
+            this.playAnimation(this.IMAGES_WALKING);}
     }
+}
 }

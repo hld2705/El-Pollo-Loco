@@ -22,6 +22,8 @@ class SmallChicken extends MovableObject {
         this.speed = 0.30 + Math.random() * 0.5;
         this.energy = 5;
         this.groundY = 180;
+        this.animationCounter = 0;
+        this.animationSpeed = 10;
         this.y = this.groundY;
         this.shouldBeRemoved = false;
         this.startJumpingInterval();
@@ -35,7 +37,7 @@ class SmallChicken extends MovableObject {
             if (this.isDead()) {
                 this.playAnimation(this.IMAGES_CHICKEN_SMALL_DEAD);
                 this.speed = 0;
-            } else{
+            } else {
                 this.jump();
             }
         }, 2000 + Math.random() * 2000);
@@ -44,18 +46,18 @@ class SmallChicken extends MovableObject {
     /**
      * Updates the animations needed for the chickens
      */
-    update() {
-        this.applyGravity();
-        if (this.isDead()) {
-            this.playAnimation(this.IMAGES_CHICKEN_SMALL_DEAD);
-            this.speed = 0;
-            setTimeout(() => {
-                this.shouldBeRemoved = true;
-            }, 2000);
-        } else {
-            this.moveLeft();
-            this.playAnimation(this.IMAGES_CHICKEN_SMALL_WALKING);
-        }
+update() {
+    this.applyGravity();
+    this.animationCounter++;
+    if (this.isDead()) {
+        if (this.animationCounter % this.animationSpeed === 0) {
+            this.playAnimation(this.IMAGES_CHICKEN_SMALL_DEAD);}
+        this.speed = 0;
+        setTimeout(() => {this.shouldBeRemoved = true;}, 2000);
+    } else { this.moveLeft();
+        if (this.animationCounter % this.animationSpeed === 0) {
+            this.playAnimation(this.IMAGES_CHICKEN_SMALL_WALKING);}
     }
+}
 
 }

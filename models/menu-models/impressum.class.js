@@ -19,9 +19,13 @@ class Impressum extends Menu {
     ctx.fillText("Email: halidcrnkic@gmail.com", this.x, this.y - 30);
     ctx.fillText("Location: Graz, Austria", this.x, this.y);
     ctx.fillText("© 2026", this.x, this.y + 30);
+    ctx.fillText("§5 Mediengesetz – Anbieterkennzeichnung", this.x, this.y + 60);
+    ctx.fillText("Unternehmensgegenstand", this.x, this.y + 90)
+    ctx.fillText("Entwicklung und Vertrieb", this.x, this.y + 120)
+    ctx.fillText("von Computerspielen", this.x, this.y + 145)
     ctx.font = this.hoverBack ? "26px Sancreek" : "20px Sancreek";
     ctx.fillStyle = this.hoverBack ? "yellow" : "white";
-    ctx.fillText("BACK", this.x, this.y + 80);
+    ctx.fillText("BACK", this.x, this.y - 100);
   }
 
   /**
@@ -30,9 +34,11 @@ class Impressum extends Menu {
    */
   handleClick(e) {
     const rect = this.canvas.getBoundingClientRect();
+    const scaleX = this.canvas.width / rect.width;
     const scaleY = this.canvas.height / rect.height;
+    const mouseX = (e.clientX - rect.left) * scaleX;
     const mouseY = (e.clientY - rect.top) * scaleY;
-    if (mouseY > this.y + 60 && mouseY < this.y + 100) {
+    if (mouseX > this.x - 50 && mouseX < this.x + 50 && mouseY > this.y - 110 && mouseY < this.y - 90) {
       this.canvas.style.cursor = "default";
       menu = new Menu(this.canvas, this.audio);
     }
@@ -43,10 +49,12 @@ class Impressum extends Menu {
    */
   handleMove(e) {
     const rect = this.canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const withinBackX = mouseX > this.x - 100 && mouseX < this.x + 100;
-    const withinBackY = mouseY > this.y + 60 && mouseY < this.y + 100;
+    const scaleX = this.canvas.width / rect.width;
+    const scaleY = this.canvas.height / rect.height;
+    const mouseX = (e.clientX - rect.left) * scaleX;
+    const mouseY = (e.clientY - rect.top) * scaleY;
+    const withinBackX = mouseX > this.x - 50 && mouseX < this.x + 50;
+    const withinBackY = mouseY > this.y - 110 && mouseY < this.y - 90;
     this.hoverBack = withinBackX && withinBackY;
     this.canvas.style.cursor = this.hoverBack ? "pointer" : "default";
   }
@@ -56,10 +64,12 @@ class Impressum extends Menu {
    */
   isHovering(e) {
     const rect = this.canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const withinBackX = mouseX > this.x - 100 && mouseX < this.x + 100;
-    const withinBackY = mouseY > this.y + 60 && mouseY < this.y + 100;
+    const scaleX = this.canvas.width / rect.width;
+    const scaleY = this.canvas.height / rect.height;
+    const mouseX = (e.clientX - rect.left) * scaleX;
+    const mouseY = (e.clientY - rect.top) * scaleY;
+    const withinBackX = mouseX > this.x - 50 && mouseX < this.x + 50;
+    const withinBackY = mouseY > this.y - 110 && mouseY < this.y - 90;
     return withinBackX && withinBackY;
   }
 }

@@ -88,20 +88,21 @@ class Character extends MovableObject {
      * in 60 fps i.e 1000/60
      */
     update() {
-        let idleTime = (new Date().getTime() - this.lastAction) / 500;
-        const k = this.world.keyboard;
-        if (this.isAboveGround() || this.speedY > 0) { this.y -= this.speedY; this.speedY -= this.acceleration; }
-        if (k.RIGHT) { this.moveRight(); this.otherDirection = false; this.lastAction = new Date().getTime();}
-        if (k.LEFT && this.x > 0) { this.moveLeft(); this.otherDirection = true; this.lastAction = new Date().getTime();}
-        if (k.UP && !this.isAboveGround()) { this.jump(); this.lastAction = new Date().getTime();}
-        this.world.camera_x = -this.x + 100;
-        if (this.isDead()) return this.playAnimation(this.IMAGES_DEAD);
-        if (this.isHurt()) return this.playAnimation(this.IMAGES_HURT);
-        if (this.isAboveGround()) return this.playAnimation(this.IMAGES_JUMPING);
-        if (k.RIGHT || (k.LEFT && this.x > 0)) this.playAnimation(this.IMAGES_WALKING);
-        if (idleTime > 5) {return this.playAnimation(this.IMAGES_LONG_IDLE);}
-        if (idleTime > 3) {return this.playAnimation(this.IMAGES_IDLE);}
-    }
+    let idleTime = (new Date().getTime() - this.lastAction) / 500;
+    const k = this.world.keyboard;
+    if (this.isAboveGround() || this.speedY > 0) { this.y -= this.speedY; this.speedY -= this.acceleration; }
+    const maxX = 13000;
+    if (k.RIGHT && this.x < maxX) { this.moveRight(); this.otherDirection = false; this.lastAction = new Date().getTime();}
+    if (k.LEFT && this.x > 0) { this.moveLeft(); this.otherDirection = true; this.lastAction = new Date().getTime();}
+    if (k.UP && !this.isAboveGround()) { this.jump(); this.lastAction = new Date().getTime();}
+    this.world.camera_x = -this.x + 100;
+    if (this.isDead()) return this.playAnimation(this.IMAGES_DEAD);
+    if (this.isHurt()) return this.playAnimation(this.IMAGES_HURT);
+    if (this.isAboveGround()) return this.playAnimation(this.IMAGES_JUMPING);
+    if ((k.RIGHT && this.x < maxX) || (k.LEFT && this.x > 0)) this.playAnimation(this.IMAGES_WALKING);
+    if (idleTime > 5) {return this.playAnimation(this.IMAGES_LONG_IDLE);}
+    if (idleTime > 3) {return this.playAnimation(this.IMAGES_IDLE);}
+}
 
     /**
      * setting the speed on the Y achis to 25 making the character "jump"

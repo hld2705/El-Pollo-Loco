@@ -29,23 +29,18 @@ class Menu {
   draw(ctx) {
     if (this.bgImage.complete) {
       ctx.drawImage(this.bgImage, 0, 0, 720, 480);}
-    ctx.fillStyle = "white";
-    ctx.strokeStyle = "black"
-    ctx.font = "38px Sancreek";
     ctx.textAlign = "center";
-    let btnWidth = 200;
-    let btnHeight = 50;
-    let btnX = this.x - btnWidth / 2;
-    let btnY = this.y + 10;
-    ctx.strokeRect(btnX, btnY, btnWidth, btnHeight);
-    ctx.fillStyle = "white";
     ctx.font = "32px Sancreek";
-    ctx.textAlign = "center";
-    this.drawButton(ctx, "IMPRESSUM", this.x, this.y - 60, 220, 50, this.hoverImpressum);
-    this.drawButton(ctx, "TUTORIAL", this.x, this.y, 220, 50, this.hoverTutorial);
-    this.drawButton(ctx, "PLAY", this.x, this.y + 60, 220, 50, this.hoverPlay);
+    const y = 60;
+    const spacing = 240;
+    this.drawButton(ctx, "IMPRESSUM", this.canvas.width / 2 - spacing, y, 220, 50, this.hoverImpressum);
+    this.drawButton(ctx, "TUTORIAL", this.canvas.width / 2, y, 220, 50, this.hoverTutorial);
+    this.drawButton(ctx, "PLAY", this.canvas.width / 2 + spacing, y, 220, 50, this.hoverPlay);
   }
 
+  /**
+   * Function that draws the buttons
+   */
   drawButton(ctx, text, x, y, width, height, hover) {
     ctx.fillStyle = hover ? "#f4b942" : "#8b5a2b";
     ctx.fillRect(x - width / 2, y - height / 2, width, height);
@@ -69,15 +64,13 @@ class Menu {
     const scaleY = this.canvas.height / rect.height;
     const mouseX = (e.clientX - rect.left) * scaleX;
     const mouseY = (e.clientY - rect.top) * scaleY;
-    if (mouseY > this.y + 20 && mouseY < this.y + 60) {
+    if (mouseX > this.x + 240 - 110 && mouseX < this.x + 240 + 110 && mouseY > 60 - 25 && mouseY < 60 + 25) {
       this.destroy(); showMenu = false;
       world = new World(canvas, keyboard, this.audio);
-      this.audio.playMusic("ingame");}
-    if (mouseX > this.x - 100 && mouseX < this.x + 100 && mouseY > this.y - 10 && mouseY < this.y + 10) {
-      this.destroy(); 
-      menu = new Tutorial(this.canvas, this.audio);}
-    if (mouseX > this.x - 100 && mouseX < this.x + 100 && mouseY > this.y - 60 && mouseY < this.y - 20) {
-      this.destroy(); 
+      this.audio.playMusic("ingame");
+    } if (mouseX > this.x - 110 && mouseX < this.x + 110 && mouseY > 60 - 25 && mouseY < 60 + 25) { this.destroy();
+      menu = new Tutorial(this.canvas, this.audio);
+    } if (mouseX > this.x - 240 - 110 && mouseX < this.x - 240 + 110 && mouseY > 60 - 25 && mouseY < 60 + 25) { this.destroy();
       menu = new Impressum(this.canvas, this.audio);}
   }
 
@@ -86,16 +79,28 @@ class Menu {
    */
   handleMove(e) {
     const rect = this.canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    this.hoverPlay = mouseY > this.y + 20 && mouseY < this.y + 60;
-    this.hoverTutorial = mouseX > this.x - 100 && mouseX < this.x + 100 && mouseY > this.y - 10 && mouseY < this.y + 10;
-    this.hoverImpressum = mouseX > this.x - 100 && mouseX < this.x + 100 && mouseY > this.y - 60 && mouseY < this.y - 20;
+    const scaleX = this.canvas.width / rect.width;
+    const scaleY = this.canvas.height / rect.height;
+    const mouseX = (e.clientX - rect.left) * scaleX;
+    const mouseY = (e.clientY - rect.top) * scaleY;
+    this.hoverImpressum = this.isInside(mouseX, mouseY, this.x - 240, 60, 220, 50);
+    this.hoverTutorial = this.isInside(mouseX, mouseY, this.x, 60, 220, 50);
+    this.hoverPlay = this.isInside(mouseX, mouseY, this.x + 240, 60, 220, 50);
     if (this.hoverPlay || this.hoverTutorial || this.hoverImpressum) {
       this.canvas.style.cursor = "pointer";
-    } else {
-      this.canvas.style.cursor = "default";
-    }
+    } else { this.canvas.style.cursor = "default"; }
+  }
+
+  /**
+   * Helper function so the buttons get lid up when a user hovers over it, needed for the correct checkbox
+   */
+  isInside(mouseX, mouseY, x, y, width, height) {
+    return (
+      mouseX > x - width / 2 &&
+      mouseX < x + width / 2 &&
+      mouseY > y - height / 2 &&
+      mouseY < y + height / 2
+    );
   }
 
   /**
@@ -104,14 +109,17 @@ class Menu {
    */
   isHovering(e) {
     const rect = this.canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    if (mouseY > this.y + 20 && mouseY < this.y + 60) {
+    const scaleX = this.canvas.width / rect.width;
+    const scaleY = this.canvas.height / rect.height;
+    const mouseX = (e.clientX - rect.left) * scaleX;
+    const mouseY = (e.clientY - rect.top) * scaleY;
+    if (mouseX > this.x + 240 - 110 && mouseX < this.x + 240 + 110 && mouseY > 60 - 25 && mouseY < 60 + 25) {
       return true;}
-    if (mouseX > this.x - 100 && mouseX < this.x + 100 && mouseY > this.y - 10 && mouseY < this.y + 10) {
+    if (mouseX > this.x - 110 && mouseX < this.x + 110 && mouseY > 60 - 25 && mouseY < 60 + 25) {
       return true;}
-    if (mouseX > this.x - 100 && mouseX < this.x + 100 && mouseY > this.y - 60 && mouseY < this.y - 20) {
+    if (mouseX > this.x - 240 - 110 && mouseX < this.x - 240 + 110 && mouseY > 60 - 25 && mouseY < 60 + 25) {
       return true;}
+      return false;
   }
 
 }

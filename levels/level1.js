@@ -28,16 +28,16 @@ function createLevel1() {
             return arr;
         })(),
         [
-            new PickableBottle(300, 400),
-            new PickableBottle(600, 400),
-            new PickableBottle(900, 400),
-            new PickableBottle(1200, 400),
-            new PickableBottle(1500, 400),
-            new PickableBottle(1600, 400),
-            new PickableBottle(1800, 400),
-            new PickableBottle(1900, 400),
-            new PickableBottle(1250, 400),
-            new PickableBottle(1590, 400)
+            new PickableBottle(300, 350),
+            new PickableBottle(400, 350),
+            new PickableBottle(500, 350),
+            new PickableBottle(600, 350),
+            new PickableBottle(850, 350),
+            new PickableBottle(200, 350),
+            new PickableBottle(700, 350),
+            new PickableBottle(680, 350),
+            new PickableBottle(584, 350),
+            new PickableBottle(985, 350)
         ],
         [
             new Coin(300, 200),
