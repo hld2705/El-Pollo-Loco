@@ -41,6 +41,13 @@ function isPortraitMobile() {
 }
 
 /**
+ * Helper function for recognizing the user is actually on his phone
+ */
+function isMobileDevice() {
+    return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+}
+
+/**
  * function responsible for the "Game loading" animation
  */
 async function loadGameAnimation() {

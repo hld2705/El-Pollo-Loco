@@ -27,6 +27,7 @@ class Phone extends MovableObject {
         this.init();
         this.soundMuted = false;
         this.syncSoundIcon();
+        this.isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     }
 
     /**
@@ -118,7 +119,8 @@ class Phone extends MovableObject {
         this.setPos('left', cx - this.size - gap, top + 120);
         this.setPos('right', cx + gap, top + 120);
         this.setPos('up', cx - this.size / 2, top + 70);
-        this.setPos('space', cx + this.size + gap * 5, top + 120);
+        const rightEdge = -this.world.camera_x + this.canvas.width;
+        this.setPos('space', rightEdge - this.size - 40, top + 120);
         this.setPos('fullscreen', cx + 458, top - 250);
         this.setPos('sound', cx + 408, top - 250);
     }
@@ -160,7 +162,12 @@ class Phone extends MovableObject {
      */
     draw(ctx) {
         this.updatePositions();
-        for (let key in this.buttons) this.drawButton(ctx, this.buttons[key]);
+        for (let key in this.buttons) {
+            if (!this.isMobile && (key === "left" || key === "right" || key === "up" || key === "space")) {
+                continue;
+            }
+            this.drawButton(ctx, this.buttons[key]);
+        }
     }
 
     /**
@@ -196,7 +203,7 @@ class Phone extends MovableObject {
     * Changes the icon and mutes the sound of the game
     */
     toggleSound() {
-    this.world.audio.toggleMute();
-    this.syncSoundIcon();
-}
+        this.world.audio.toggleMute();
+        this.syncSoundIcon();
+    }
 }
