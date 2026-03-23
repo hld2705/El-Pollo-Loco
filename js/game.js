@@ -11,26 +11,54 @@ let audio = new AudioManager();
  */
 function init() {
     canvas = document.getElementById("canvas");
-    //loadGameAnimation()
     menu = new Menu(canvas, audio);
     draw();
     canvas.addEventListener("mousemove", (e) => {
         if (menu && menu.isHovering) {
-            canvas.style.cursor = menu.isHovering(e) ? "pointer" : "default";} else { canvas.style.cursor = "default";}});
+            canvas.style.cursor = menu.isHovering(e) ? "pointer" : "default";
+        } else { canvas.style.cursor = "default"; }
+    });
+   
 }
 
- /**
-   * Draws a message, informing the user that he should rotate his phone, in order to play fullscreen
-   */
+/**
+ * Toggle function for the h1 inside HTML to keep the responsivnes of the page
+ */
+function handleResize() {
+    let h1 = document.getElementById("h1overview");
+
+    if (isMobileDevice()) {
+        if (isPortraitMobile()) {
+            h1.style.display = "block";
+        } else {
+            h1.style.display = "none";
+        }
+    } else {
+        h1.style.display = "block";
+        h1.style.textAlign = "center";
+    }
+}
+
+/**
+ * Event listener on resize for the screen to automatially update depending on the size of the screen
+ */
+window.addEventListener("resize", handleResize);
+handleResize();
+ 
+/**
+  * Draws a message, informing the user that he should rotate his phone, in order to play fullscreen
+  */
 function drawRotateMessage(ctx, canvas) {
+    const centerY = canvas.height / 2;
+    const spacing = 60;
     ctx.fillStyle = "rgba(0,0,0,0.8)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "white";
     ctx.textAlign = "center";
-    ctx.font = "30px Sancreek";
-    ctx.fillText("Rotate your phone", canvas.width / 2, canvas.height / 2 - 20);
-    ctx.font = "20px Sancreek";
-    ctx.fillText("Please play in landscape mode", canvas.width / 2, canvas.height / 2 + 20);
+    ctx.font = "60px Sancreek";
+    ctx.fillText("Rotate your phone", canvas.width / 2, centerY - spacing);
+    ctx.font = "40px Sancreek";
+    ctx.fillText("Please play in landscape mode", canvas.width / 2, centerY + spacing);
 }
 
 /**
@@ -48,29 +76,16 @@ function isMobileDevice() {
 }
 
 /**
- * function responsible for the "Game loading" animation
- */
-async function loadGameAnimation() {
-    let loadingscreen = document.getElementById("loadingscreen");
-    loadingscreen.innerHTML = loadingTemplate();
-    await new Promise(resolve => setTimeout(resolve, 4000));
-    loadingscreen.innerHTML = "";
-    gameState = "menu";
-    menu = new Menu(canvas, audio);
-}
-
-/**
  * here is where the canvas i.e. ctx. i.e main draw method is defined
  */
 function draw() {
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
     if (isPortraitMobile()) {
         drawRotateMessage(ctx, canvas);
         requestAnimationFrame(draw);
-        return;}
-
+        return;
+    }
     if (showMenu) {
         if (menu) menu.draw(ctx);
     } else if (world) {

@@ -3,6 +3,10 @@ class Impressum extends Menu {
     super(canvas, audio);
     this.hoverBack = false;
     this.canvas.style.cursor = "default";
+    this.backWidth = 80;
+    this.backHeight = 20;
+    this.backX = this.x;
+    this.backY = this.y - 110;
   }
 
   /**
@@ -25,11 +29,24 @@ class Impressum extends Menu {
     ctx.fillText("von Computerspielen", this.x, this.y + 145)
     ctx.font = this.hoverBack ? "26px Sancreek" : "20px Sancreek";
     ctx.fillStyle = this.hoverBack ? "yellow" : "white";
-    ctx.fillText("BACK", this.x, this.y - 100);
+    this.drawButton(ctx, "BACK", this.backX, this.backY, this.backWidth, this.backHeight, this.hoverBack);
   }
 
   /**
-   * 
+   * Function that draws the buttons
+   */
+  drawButton(ctx, text, x, y, width, height, hover) {
+    ctx.fillStyle = hover ? "#f4b942" : "#8b5a2b";
+    ctx.fillRect(x - width / 2, y - height / 2, width, height);
+    ctx.strokeStyle = "black";
+    ctx.strokeRect(x - width / 2, y - height / 2, width, height);
+    ctx.fillStyle = "white";
+    ctx.font = "16px Sancreek";
+    ctx.textAlign = "center";
+    ctx.fillText(text, x, y + 5.5);
+  }
+
+  /**
    * @param {action} e registers the users click input in order to return back to the menu 
    */
   handleClick(e) {
@@ -38,8 +55,10 @@ class Impressum extends Menu {
     const scaleY = this.canvas.height / rect.height;
     const mouseX = (e.clientX - rect.left) * scaleX;
     const mouseY = (e.clientY - rect.top) * scaleY;
-    if (mouseX > this.x - 50 && mouseX < this.x + 50 && mouseY > this.y - 110 && mouseY < this.y - 90) {
-      this.canvas.style.cursor = "default";
+    if (mouseX > this.backX - this.backWidth / 2 && mouseX < this.backX + this.backWidth / 2 &&
+      mouseY > this.backY - this.backHeight / 2 &&
+      mouseY < this.backY + this.backHeight / 2
+    ) {this.canvas.style.cursor = "default";
       menu = new Menu(this.canvas, this.audio);
     }
   }
@@ -53,8 +72,8 @@ class Impressum extends Menu {
     const scaleY = this.canvas.height / rect.height;
     const mouseX = (e.clientX - rect.left) * scaleX;
     const mouseY = (e.clientY - rect.top) * scaleY;
-    const withinBackX = mouseX > this.x - 50 && mouseX < this.x + 50;
-    const withinBackY = mouseY > this.y - 110 && mouseY < this.y - 90;
+    const withinBackX = mouseX > this.backX - this.backWidth / 2 && mouseX < this.backX + this.backWidth / 2;
+    const withinBackY = mouseY > this.backY - this.backHeight / 2 && mouseY < this.backY + this.backHeight / 2;
     this.hoverBack = withinBackX && withinBackY;
     this.canvas.style.cursor = this.hoverBack ? "pointer" : "default";
   }
@@ -68,8 +87,8 @@ class Impressum extends Menu {
     const scaleY = this.canvas.height / rect.height;
     const mouseX = (e.clientX - rect.left) * scaleX;
     const mouseY = (e.clientY - rect.top) * scaleY;
-    const withinBackX = mouseX > this.x - 50 && mouseX < this.x + 50;
-    const withinBackY = mouseY > this.y - 110 && mouseY < this.y - 90;
+    const withinBackX = mouseX > this.backX - this.backWidth / 2 && mouseX < this.backX + this.backWidth / 2;
+    const withinBackY = mouseY > this.backY - this.backHeight / 2 && mouseY < this.backY + this.backHeight / 2;
     return withinBackX && withinBackY;
   }
 }

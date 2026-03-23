@@ -28,6 +28,23 @@ class Phone extends MovableObject {
         this.soundMuted = false;
         this.syncSoundIcon();
         this.isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+        document.addEventListener('fullscreenchange', () => {
+            this.onFullscreenChange();
+        });
+    }
+
+    /**
+     * Renders the buttons again after screen change on fullscreen mode
+     */
+    onFullscreenChange() {
+        if (document.fullscreenElement) {
+            this.canvas.width = window.innerWidth;
+            this.canvas.height = window.innerHeight;
+        } else {
+            this.canvas.width = 720;
+            this.canvas.height = 480;
+        }
     }
 
     /**
@@ -121,8 +138,8 @@ class Phone extends MovableObject {
         this.setPos('up', cx - this.size / 2, top + 70);
         const rightEdge = -this.world.camera_x + this.canvas.width;
         this.setPos('space', rightEdge - this.size - 40, top + 120);
-        this.setPos('fullscreen', cx + 458, top - 250);
-        this.setPos('sound', cx + 408, top - 250);
+        this.setPos('fullscreen', rightEdge - 70, 20);
+        this.setPos('sound', rightEdge - 140, 20);
     }
 
     /**
@@ -190,7 +207,7 @@ class Phone extends MovableObject {
      * Toggles fullscreen mode
      */
     toggleFullscreen() {
-        if (document.fullscreenElement === this.canvas) {
+        if (document.fullscreenElement) {
             document.exitFullscreen();
             this.buttons.fullscreen.img = this.loadImage(this.IMAGES_FULLSCREEN[0]);
         } else {
@@ -206,4 +223,6 @@ class Phone extends MovableObject {
         this.world.audio.toggleMute();
         this.syncSoundIcon();
     }
+
+
 }

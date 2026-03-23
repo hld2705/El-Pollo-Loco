@@ -3,18 +3,14 @@ class AudioManager {
     const savedMute = localStorage.getItem("gameMuted");
     this.muted = savedMute === "true";
     this.sounds = {
-      jump: new Audio("audio/crunchy_jump.mp3"),
-      walk: new Audio("audio/crunchy_walk.wav"),
-      menu: new Audio("audio/mainmenumusic.mp3"),
       ingame: new Audio("audio/ingamebackgroundmusic.mp3"),
       boss: new Audio("audio/ifenemybossappears.mp3"),
       gameovermusic: new Audio("audio/gameovermusic.mp3"),
       gamewonmusic: new Audio("audio/gamewon.ogg")
     };
-    this.sounds.menu.loop = true;
     this.sounds.ingame.loop = true;
     this.currentMusic = "menu";
-    if (!this.muted) this.sounds[this.currentMusic].play().catch(() => {});
+    //if (!this.muted) this.sounds[this.currentMusic].play().catch(() => { });
   }
 
   /**
@@ -30,9 +26,11 @@ class AudioManager {
    * Resumes the current music, to keep the music state flowing
    */
   resumeCurrent() {
-  if (!this.currentMusic) return;
-  this.sounds[this.currentMusic].play().catch(() => {});
-}
+    if (!this.currentMusic) return;
+    const sound = this.sounds[this.currentMusic];
+    if (!sound) return;
+    sound.play().catch(() => { });
+  }
   /**
    * Stops all sounds ingame, to sync the sounds with each other
    */
@@ -47,28 +45,30 @@ class AudioManager {
    * Toggle mute on/off
    */
   toggleMute() {
-  this.muted = !this.muted;
-  localStorage.setItem("gameMuted", this.muted);
-  if (this.muted) {
-    this.pauseAll();
-  } else {
-    this.resumeCurrent();
+    this.muted = !this.muted;
+    localStorage.setItem("gameMuted", this.muted);
+    if (this.muted) {
+      this.pauseAll();
+    } else {
+      this.resumeCurrent();
+    }
   }
-}
 
   /**
    * Main function used to play sounds 
    */
-playMusic(track) {
+  playMusic(track) {
+    const newSound = this.sounds[track];
+    if (!newSound) return;
     if (!this.currentMusic || this.currentMusic !== track) {
-        if (this.currentMusic) {this.sounds[this.currentMusic].pause();}
-        this.currentMusic = track;
-        if (this.muted) return;
-        this.sounds[track].currentTime = 0;
-        this.sounds[track].volume = 0.1;
-        this.sounds[track].play().catch(() => {});
+      if (this.currentMusic && this.sounds[this.currentMusic]) { this.sounds[this.currentMusic].pause(); }
+      this.currentMusic = track;
+      if (this.muted) return;
+      this.sounds[track].currentTime = 0;
+      this.sounds[track].volume = 0.1;
+      this.sounds[track].play().catch(() => { });
     }
-}
+  }
 
   /**
    * Needed to play the smaller sounds for smaller animations

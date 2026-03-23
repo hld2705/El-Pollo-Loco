@@ -71,7 +71,7 @@ class Character extends MovableObject {
     world;
     lastAction = new Date().getTime();
 
-    constructor(audio) {
+    constructor() {
         super().loadImage('img/2_character_pepe/2_walk/W-21.png');
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_JUMPING);
@@ -80,7 +80,6 @@ class Character extends MovableObject {
         this.loadImages(this.IMAGES_IDLE);
         this.loadImages(this.IMAGES_LONG_IDLE);
         this.applyGravity();
-        this.audio = audio;
     }
 
     /**

@@ -43,10 +43,11 @@ class Endboss extends MovableObject {
     update() {
         this.animationCounter++;
         setInterval(() => {
+            this.speed = 0.09;
             if (this.energy <= 0) {
                 this.handleDeath();}
             else if (this.isRecentlyHurt()) {
-                this.playAnimation(this.IMAGES_HURT);}
+                this.playAnimation(this.IMAGES_HURT); this.speed = 0.12;}
             else {this.moveLeft();
                 if (this.animationCounter % this.animationSpeed === 0) {
             this.playAnimation(this.IMAGES_WALKING);}
