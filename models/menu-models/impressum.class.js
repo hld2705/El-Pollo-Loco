@@ -15,7 +15,7 @@ class Impressum extends Menu {
    */
   draw(ctx) {
     ctx.fillStyle = "#E59757";
-    ctx.fillRect(this.x - 200, this.y - 150, 400, 300);
+    ctx.fillRect(this.x - 220, this.y - 155, 440, 340);
     ctx.fillStyle = "white";
     ctx.font = "20px Sancreek";
     ctx.textAlign = "center";

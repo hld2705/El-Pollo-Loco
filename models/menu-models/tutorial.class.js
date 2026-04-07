@@ -20,10 +20,10 @@ class Tutorial extends Menu {
     ctx.fillText("MOVE LEFT-RIGHT: A D", this.x - 150, this.y - 55);
     ctx.fillText("JUMP: W", this.x - 150, this.y - 20);
     ctx.fillText("THROW: SPACE", this.x - 150, this.y + 20);
+    ctx.fillStyle = "yellow";
     ctx.fillText("IMPORTANT NOTICE!:", this.x - 150, this.y + 60);
     ctx.fillText("Endboss appears only when you", this.x - 150, this.y + 90);
     ctx.fillText("defeat all of the small enemies", this.x - 150, this.y + 120);
-    const btnY = this.y - 100;
     ctx.font = this.hoverBack ? "26px Sancreek" : "20px Sancreek";
     ctx.fillStyle = this.hoverBack ? "yellow" : "white";
     ctx.textAlign = "center";

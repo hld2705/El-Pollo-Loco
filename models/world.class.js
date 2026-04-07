@@ -16,7 +16,8 @@ class World {
         this.camera_x = 0;
         this.gameEnded = false;
         this.start();
-        this.run();
+        //this.run();
+
     }
 
     /**
@@ -39,14 +40,6 @@ class World {
         }, 1000 / 60);
     }
 
-    /**
-     * Updates the game events
-     */
-    run() {
-        this.intervalRun = setInterval(() => {
-            this.checkGameEvents();
-        }, 200);
-    }
 
     /**
      * Needed for checking all of the events, multiple functions with similar actions needed for game syncing
@@ -66,6 +59,7 @@ class World {
         this.updateEnemies();
         this.updateBoss();
         this.updateBottles();
+        this.checkGameEvents();
     }
 
     /**
@@ -130,7 +124,9 @@ class World {
         this.level.getAllEnemies().forEach(enemy => {
             if (enemy.isDead()) return;
             if (!this.character.isColliding(enemy)) return;
-            const fromTop = this.character.y + this.character.height - 20 < enemy.y;
+            const fromTop =
+                this.character.speedY > 0 &&
+                this.character.y + this.character.height - enemy.y < 20;
             fromTop ? this.killEnemy(enemy) : this.damageCharacter();
         });
     }
@@ -147,6 +143,7 @@ class World {
      * Updates the character status bar when hit
      */
     damageCharacter() {
+        if (this.character.isHurt()) return;
         this.character.hit();
         this.statusBar.setPercentage(this.character.energy);
     }
@@ -179,13 +176,16 @@ class World {
     checkCollections() {
         this.collectItems(this.level.groundBottles, () => {
             this.character.bottleCount = Math.min(5, this.character.bottleCount + 1);
-            this.statusBarFlask.setPercentage(this.character.bottleCount * 20)});
+            this.statusBarFlask.setPercentage(this.character.bottleCount * 20)
+        });
         this.collectItems(this.level.coin, () => {
             this.character.coinCount = Math.min(5, this.character.coinCount + 1);
-            this.statusBarCoin.setPercentage(this.character.coinCount * 20)});
+            this.statusBarCoin.setPercentage(this.character.coinCount * 20)
+        });
         this.collectItems(this.level.heart, () => {
             this.character.energy = Math.min(100, this.character.energy + 20);
-            this.statusBar.setPercentage(this.character.energy)});
+            this.statusBar.setPercentage(this.character.energy)
+        });
     }
 
     /**
@@ -193,8 +193,8 @@ class World {
      */
     collectItems(array, onCollect) {
         array.forEach((item, index) => {
-            const bufferX = item.width * 0.1;
-            const bufferY = item.height * 0.1;
+            const bufferX = item.width * 0.6;
+            const bufferY = item.height * 0.6;
             const char = this.character;
             const collided = char.x + char.width > item.x + bufferX && char.x < item.x + item.width - bufferX && char.y + char.height > item.y + bufferY &&
                 char.y < item.y + item.height - bufferY;
@@ -210,6 +210,8 @@ class World {
      */
     checkThrowing() {
         if (!this.keyboard.SPACE || this.character.bottleCount <= 0) return;
+        if (this.lastThrow && Date.now() - this.lastThrow < 300) return;
+        this.lastThrow = Date.now()
         const bottle = new ThrowableObject(
             this.character.x,
             this.character.y + 100,

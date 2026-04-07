@@ -89,6 +89,7 @@ class Phone extends MovableObject {
         if (this.pointerUpHandler) this.canvas.removeEventListener('pointerup', this.pointerUpHandler);
         if (this.pointerCancelHandler) this.canvas.removeEventListener('pointercancel', this.pointerCancelHandler);
     }
+    
     /**
      * Helper function for registering the click
      */

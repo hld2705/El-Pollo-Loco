@@ -88,7 +88,6 @@ class MovableObject extends DrawableObject {
     }
 
     /**
-     * 
      * @param {event} mo 
      * @returns calculates on the principle of a the axis if the character is actually touching another object, added 3px of padding to enlarge the hitboxes
      */
