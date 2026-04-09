@@ -10,23 +10,34 @@ class Phone extends MovableObject {
         this.init();
         this.soundMuted = false;
         this.isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-
         document.addEventListener('fullscreenchange', () => {
-            this.onFullscreenChange();
-        });
+            this.onFullscreenChange();});
+        window.addEventListener('resize', () => {
+            this.checkAndShowMobileButtons();});
+        window.addEventListener('orientationchange', () => {
+            this.checkAndShowMobileButtons();});
+        this.checkAndShowMobileButtons();
     }
 
     /**
      * Renders the buttons again after screen change on fullscreen mode
      */
     onFullscreenChange() {
+        const container = document.getElementById("game-container");
+
         if (document.fullscreenElement) {
             this.canvas.width = window.innerWidth;
             this.canvas.height = window.innerHeight;
+            container.style.width = "100vw";
+            container.style.height = "100vh";
         } else {
             this.canvas.width = 720;
             this.canvas.height = 480;
+            container.style.width = "fit-content";
+            container.style.height = "auto";
         }
+
+        this.checkAndShowMobileButtons();
     }
 
     /**
@@ -53,7 +64,7 @@ class Phone extends MovableObject {
             }
         });
     }
-    
+
     /**
      * Function that assignes the HTML keys and its functions using pointerups and downs, also chaging the sound and fullscreen icons
      */
@@ -66,8 +77,18 @@ class Phone extends MovableObject {
         };
         [["btn-left", "LEFT"], ["btn-right", "RIGHT"], ["btn-up", "UP"], ["btn-space", "SPACE"]]
             .forEach(([id, key]) => bind(id, key));
-        document.getElementById("btn-fullscreen").onclick = () =>
-            document.fullscreenElement ? document.exitFullscreen() : this.canvas.requestFullscreen();
+        document.getElementById("btn-fullscreen").onclick = () => {
+            const container = document.getElementById("game-container");
+            const img = document.getElementById("img-fullscreen");
+
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+                img.src = "img/fullscreen.svg";
+            } else {
+                container.requestFullscreen();
+                img.src = "img/fullscreen-exit.svg";
+            }
+        };
         document.getElementById("btn-sound").onclick = () => {
             world.audio.toggleMute();
             document.getElementById("img-sound").src = world.audio.muted ? "img/sound-mute.svg" : "img/sound-max.svg";

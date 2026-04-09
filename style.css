@@ -28,6 +28,12 @@ canvas {
     object-fit: contain;
 }
 
+canvas:fullscreen {
+    width: 100vw;
+    height: 100vh;
+    object-fit: contain;
+}
+
 h1 {
     font-family: "Sancreek", serif;
     font-weight: 400;
@@ -73,6 +79,22 @@ h1 {
     position: relative;
     width: fit-content;
     display: inline-block;
+}
+
+#game-container:fullscreen {
+    width: 100vw;
+    height: 100vh;
+}
+
+#game-container:fullscreen canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+#game-container:fullscreen #mobile-controls {
+    position: absolute;
+    inset: 0;
 }
 
 #mobile-controls {
