@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" translate="no">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0 user-scalable=no">
@@ -12,6 +13,9 @@
     <link rel="icon" type="image/png" sizes="16x16" href="favicon_io/favicon-16x16.png">
     <link rel="manifest" href="favicon_io/site.webmanifest">
     <link href="style.css" rel="stylesheet">
+    <link rel="preload" href="js/game.js" as="script">
+    <link rel="preload" href="style.css" as="style">
+    <link rel="preload" href="./models/character.class.js" as="script">
     <script src="./models/drawable-object.class.js" defer></script>
     <script src="./models/audiomanager.class.js" defer></script>
     <script src="./models/bottle.class.js" defer></script>
@@ -41,10 +45,32 @@
 </head>
 
 <body onload="init()">
-    <h1 id="h1overview">El pollo loco</h1>
-    <canvas id="canvas" width="720" height="480">
-        <img class="background-picture" src="img/background desert.jpg">
-    </canvas>
+<h1 id="h1overview">El pollo loco</h1>
+
+<div id="game-container">
+    <canvas id="canvas" width="720" height="480"></canvas>
+
+    <div id="mobile-controls">
+        <div class="left-controls" id="left-controls">
+            <button id="btn-left"><img src="img/arrow-left.svg"></button>
+            <button id="btn-up"><img src="img/arrow-up.svg"></button>
+            <button id="btn-right"><img src="img/arrow-right.svg"></button>
+        </div>
+
+        <div class="right-controls" id="right-controls">
+            <button id="btn-space"><img src="img/space-key.svg"></button>
+        </div>
+
+        <div class="top-controls" id="top-controls">
+            <button id="btn-sound">
+                <img id="img-sound" src="img/sound-max.svg">
+            </button>
+            <button id="btn-fullscreen">
+                <img id="img-fullscreen" src="img/fullscreen.svg">
+            </button>
+        </div>
+    </div>
+</div>
     <div id="loadingscreen"></div>
 </body>
 

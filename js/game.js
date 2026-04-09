@@ -5,6 +5,8 @@ let gameState = "loading";
 let showMenu = true;
 let menu = null;
 let audio = new AudioManager();
+let phone;
+
 
 /**
  * initializing function for the game

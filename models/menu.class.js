@@ -1,7 +1,8 @@
 class Menu {
-  constructor(canvas, audio) {
+  constructor(canvas, audio, phone) {
     this.canvas = canvas;
     this.audio = audio;
+    this.phone = phone;
     this.x = canvas.width / 2;
     this.y = canvas.height / 2;
     this.bgImage = new Image();
@@ -65,7 +66,12 @@ class Menu {
     const mouseY = (e.clientY - rect.top) * scaleY;
     if (mouseX > this.x + 240 - 110 && mouseX < this.x + 240 + 110 && mouseY > 60 - 25 && mouseY < 60 + 25) {
       this.destroy(); showMenu = false;
+      document.getElementById("top-controls").style.display = "block";
+      document.getElementById("left-controls").style.display = "block";
+      document.getElementById("right-controls").style.display = "block";
       world = new World(canvas, keyboard, this.audio);
+      phone = new Phone(keyboard, canvas, world);
+      phone.checkAndShowMobileButtons();
       this.audio.playMusic("ingame");
     } if (mouseX > this.x - 110 && mouseX < this.x + 110 && mouseY > 60 - 25 && mouseY < 60 + 25) { this.destroy();
       menu = new Tutorial(this.canvas, this.audio);

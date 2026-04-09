@@ -55,8 +55,8 @@ function createLevel1() {
             new Heart(350, 300),
             new Heart(200, 110),
             new Heart(400, 310),
-            new Heart(900, 200),
-            new Heart(1000, 200)
+            new Heart(900, 300),
+            new Heart(1000, 300)
         ],
         new Endboss()
     );

@@ -1,5 +1,5 @@
 class World {
-    constructor(canvas, keyboard, audio) {
+    constructor(canvas, keyboard, audio, phone) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
         this.keyboard = keyboard;
@@ -12,12 +12,10 @@ class World {
         this.bossStatusBar = this.createBossBar();
         this.throwableObjects = [];
         this.audio = audio;
-        this.phoneKeys = new Phone(this.keyboard, this.canvas, this);
         this.camera_x = 0;
         this.gameEnded = false;
         this.start();
-        //this.run();
-
+        this.phone = phone;
     }
 
     /**
@@ -76,14 +74,10 @@ class World {
     updateEnemies() {
         this.level.enemies.forEach(e => e.update());
         this.level.enemiesSmall.forEach(e => e.update());
-        this.level.enemies =
-            this.level.enemies.filter(e => !e.shouldBeRemoved);
-        this.level.enemiesSmall =
-            this.level.enemiesSmall.filter(e => !e.shouldBeRemoved);
+        this.level.enemies = this.level.enemies.filter(e => !e.shouldBeRemoved);
+        this.level.enemiesSmall = this.level.enemiesSmall.filter(e => !e.shouldBeRemoved);
         if (this.level.enemies.length === 0 &&
-            this.level.enemiesSmall.length === 0 &&
-            this.level.endboss &&
-            !this.level.endbossActive) {
+            this.level.enemiesSmall.length === 0 && this.level.endboss && !this.level.endbossActive) {
             this.level.endbossActive = true;
             this.audio.playMusic("boss");
         }
@@ -125,9 +119,10 @@ class World {
             if (enemy.isDead()) return;
             if (!this.character.isColliding(enemy)) return;
             const fromTop =
-                this.character.speedY > 0 &&
-                this.character.y + this.character.height - enemy.y < 20;
-            fromTop ? this.killEnemy(enemy) : this.damageCharacter();
+                this.character.speedY < 0 &&
+                this.character.prevY + this.character.height <= enemy.y + 5 &&
+                this.character.y + this.character.height >= enemy.y;
+            if (fromTop) { this.killEnemy(enemy); } else if (!this.character.isAboveGround()) { this.damageCharacter();}
         });
     }
 
@@ -232,6 +227,10 @@ class World {
         clearInterval(this.gameLoop);
         clearInterval(this.intervalRun);
         this.endScreen = new EndGame(type, this.character.coinCount, () => this.restartGame(), () => this.mainMenu());
+        if (phone) {
+            phone.hideMobileButtons();
+            phone.destroy();
+        }
         this.canvas.addEventListener("pointerdown", this.handleEndClick);
     }
 
@@ -254,8 +253,9 @@ class World {
      */
     restartGame() {
         this.canvas.removeEventListener("pointerdown", this.handleEndClick);
-        this.phoneKeys.destroy();
         world = new World(this.canvas, this.keyboard, this.audio);
+        phone = new Phone(this.keyboard, this.canvas, world);
+        phone.checkAndShowMobileButtons();
         this.audio.playMusic("ingame");
     }
 
@@ -264,7 +264,10 @@ class World {
      */
     mainMenu() {
         this.canvas.removeEventListener("pointerdown", this.handleEndClick);
-        this.phoneKeys.destroy();
+        if (phone) {
+            phone.destroy();
+            phone = null;
+        }
         showMenu = true;
         world = null;
         menu = new Menu(this.canvas, this.audio);
@@ -317,7 +320,6 @@ class World {
         this.drawBackground();
         this.drawUI();
         this.drawGameObjects();
-        this.phoneKeys.draw(this.ctx);
     }
 
     /**
@@ -368,7 +370,6 @@ class World {
     }
 
     /**
-     * 
      * objects to the map
      */
     drawObjects(objects) {

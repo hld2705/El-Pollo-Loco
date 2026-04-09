@@ -1,22 +1,5 @@
 class Phone extends MovableObject {
 
-    IMAGES_ARROW = [
-        'img/arrow-left.svg',
-        'img/arrow-right.svg',
-        'img/arrow-up.svg',
-        'img/space-key.svg'
-    ]
-
-    IMAGES_SOUND = [
-        'img/sound-max.svg',
-        'img/sound-mute.svg'
-    ]
-
-    IMAGES_FULLSCREEN = [
-        'img/fullscreen.svg',
-        'img/fullscreen-exit.svg'
-    ]
-
     constructor(keyboard, canvas, world) {
         super();
         this.keyboard = keyboard;
@@ -26,7 +9,6 @@ class Phone extends MovableObject {
         this.buttons = {};
         this.init();
         this.soundMuted = false;
-        this.syncSoundIcon();
         this.isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
         document.addEventListener('fullscreenchange', () => {
@@ -51,21 +33,44 @@ class Phone extends MovableObject {
      * function for initializing the functions
      */
     init() {
-        this.createButtons();
         this.addListeners();
+        this.setupMobileControls(this.keyboard, this.world);
     }
 
     /**
-     * function that creates "draws" the buttons and adds their function using the keyboard assigned keys
+     * Function for checking when the mobile phone is tilted and not, also when the user wins or looses to show/hide the buttons
      */
-    createButtons() {
-        this.buttons = {
-            left: { img: this.loadImage(this.IMAGES_ARROW[0]), press: () => this.keyboard.LEFT = true },
-            right: { img: this.loadImage(this.IMAGES_ARROW[1]), press: () => this.keyboard.RIGHT = true },
-            up: { img: this.loadImage(this.IMAGES_ARROW[2]), press: () => this.keyboard.UP = true },
-            space: { img: this.loadImage(this.IMAGES_ARROW[3]), press: () => this.keyboard.SPACE = true },
-            fullscreen: { img: this.loadImage(this.IMAGES_FULLSCREEN[0]), press: () => this.toggleFullscreen() },
-            sound: { img: this.loadImage(this.IMAGES_SOUND[0]), press: () => this.toggleSound() }
+    checkAndShowMobileButtons() {
+        const isResponsive = window.innerWidth < 900;
+        const isLandscape = window.innerWidth > window.innerHeight;
+        const shouldShowMovement = (isResponsive && isLandscape) || document.fullscreenElement;
+        const topControls = document.getElementById('top-controls');
+        if (topControls) { topControls.style.display = 'flex'; }
+        ['left-controls', 'right-controls'].forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.style.display = shouldShowMovement ? 'flex' : 'none';
+            }
+        });
+    }
+    
+    /**
+     * Function that assignes the HTML keys and its functions using pointerups and downs, also chaging the sound and fullscreen icons
+     */
+    setupMobileControls(keyboard, world) {
+        const bind = (id, key) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.onpointerdown = () => keyboard[key] = true;
+            el.onpointerup = el.onpointerleave = el.onpointercancel = () => keyboard[key] = false;
+        };
+        [["btn-left", "LEFT"], ["btn-right", "RIGHT"], ["btn-up", "UP"], ["btn-space", "SPACE"]]
+            .forEach(([id, key]) => bind(id, key));
+        document.getElementById("btn-fullscreen").onclick = () =>
+            document.fullscreenElement ? document.exitFullscreen() : this.canvas.requestFullscreen();
+        document.getElementById("btn-sound").onclick = () => {
+            world.audio.toggleMute();
+            document.getElementById("img-sound").src = world.audio.muted ? "img/sound-mute.svg" : "img/sound-max.svg";
         };
     }
 
@@ -89,7 +94,7 @@ class Phone extends MovableObject {
         if (this.pointerUpHandler) this.canvas.removeEventListener('pointerup', this.pointerUpHandler);
         if (this.pointerCancelHandler) this.canvas.removeEventListener('pointercancel', this.pointerCancelHandler);
     }
-    
+
     /**
      * Helper function for registering the click
      */
@@ -125,25 +130,6 @@ class Phone extends MovableObject {
     }
 
     /**
-     * Returns the needed info on clicked buttons
-     */
-    updatePositions() {
-        if (!this.world?.character) return;
-        const c = this.world.character;
-        const ground = this.world.level?.groundY || this.canvas.height - 140;
-        const cx = c.x + c.width / 2;
-        const top = ground - this.size - 10;
-        const gap = 38;
-        this.setPos('left', cx - this.size - gap, top + 120);
-        this.setPos('right', cx + gap, top + 120);
-        this.setPos('up', cx - this.size / 2, top + 70);
-        const rightEdge = -this.world.camera_x + this.canvas.width;
-        this.setPos('space', rightEdge - this.size - 40, top + 120);
-        this.setPos('fullscreen', rightEdge - 70, 20);
-        this.setPos('sound', rightEdge - 140, 20);
-    }
-
-    /**
      * Setting the position of the buttons
      */
     setPos(name, x, y) {
@@ -151,18 +137,6 @@ class Phone extends MovableObject {
         this.buttons[name].y = y;
         this.buttons[name].width = this.size;
         this.buttons[name].height = this.size;
-    }
-
-    /**
-     * Helper function for syncing the sound icon, when its muted and game reloaded the icon gets carried over
-     */
-    syncSoundIcon() {
-        this.soundMuted = this.world.audio.muted;
-        if (this.soundMuted) {
-            this.buttons.sound.img = this.loadImage(this.IMAGES_SOUND[1]);
-        } else {
-            this.buttons.sound.img = this.loadImage(this.IMAGES_SOUND[0]);
-        }
     }
 
     /**
@@ -176,44 +150,16 @@ class Phone extends MovableObject {
     }
 
     /**
-     * Main draw function
-     */
-    draw(ctx) {
-        this.updatePositions();
-        for (let key in this.buttons) {
-            if (!this.isMobile && (key === "left" || key === "right" || key === "up" || key === "space")) {
-                continue;
-            }
-            this.drawButton(ctx, this.buttons[key]);
-        }
-    }
-
-    /**
-     * Helper function for drawing the images of the buttons
-     */
-    loadImage(path) {
-        let img = new Image();
-        img.src = path;
-        return img;
-    }
-
-    /**
-     * Helper function for drawing the buttons
-     */
-    drawButton(ctx, b) {
-        ctx.drawImage(b.img, b.x, b.y, b.width, b.height);
-    }
-
-    /**
      * Toggles fullscreen mode
      */
     toggleFullscreen() {
+        const img = document.getElementById("img-fullscreen");
         if (document.fullscreenElement) {
             document.exitFullscreen();
-            this.buttons.fullscreen.img = this.loadImage(this.IMAGES_FULLSCREEN[0]);
+            img.src = "img/fullscreen.svg";
         } else {
             this.canvas.requestFullscreen();
-            this.buttons.fullscreen.img = this.loadImage(this.IMAGES_FULLSCREEN[1]);
+            img.src = "img/fullscreen-exit.svg";
         }
     }
 
@@ -222,7 +168,26 @@ class Phone extends MovableObject {
     */
     toggleSound() {
         this.world.audio.toggleMute();
-        this.syncSoundIcon();
+        const img = document.getElementById("img-sound");
+        if (this.world.audio.muted) {
+            img.src = "img/sound-mute.svg";
+        } else {
+            img.src = "img/sound-max.svg";
+        }
+    }
+
+
+    /**
+     * Hides the mobile control buttons
+     */
+    hideMobileButtons() {
+        const containers = ['left-controls', 'right-controls', 'top-controls'];
+        containers.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.style.display = 'none';
+            }
+        });
     }
 
 

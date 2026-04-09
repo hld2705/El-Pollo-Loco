@@ -87,6 +87,7 @@ class Character extends MovableObject {
      * in 60 fps i.e 1000/60
      */
     update() {
+    this.prevY = this.y;
     let idleTime = (new Date().getTime() - this.lastAction) / 500;
     const k = this.world.keyboard;
     if (this.isAboveGround() || this.speedY > 0) { this.y -= this.speedY; this.speedY -= this.acceleration; }
