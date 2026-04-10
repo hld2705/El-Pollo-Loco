@@ -72,6 +72,8 @@ class Menu {
       world = new World(canvas, keyboard, this.audio);
       phone = new Phone(keyboard, canvas, world);
       phone.checkAndShowMobileButtons();
+      phone.enableControlsWithDelay(1000)
+      console.log("Phone initialized");
       this.audio.playMusic("ingame");
     } if (mouseX > this.x - 110 && mouseX < this.x + 110 && mouseY > 60 - 25 && mouseY < 60 + 25) { this.destroy();
       menu = new Tutorial(this.canvas, this.audio);

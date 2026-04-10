@@ -6,6 +6,18 @@ class Character extends MovableObject {
     coinCount = 0;
     heartCount = 0;
 
+    animationSpeed = {
+        WALKING: 120,
+        JUMPING: 140,
+        IDLE: 220,
+        LONG_IDLE: 320,
+        HURT: 160,
+        DEAD: 200
+    };
+
+    lastFrameTime = 0;
+    currentImageIndex = 0;
+
     IMAGES_WALKING = [
         'img/2_character_pepe/2_walk/W-21.png',
         'img/2_character_pepe/2_walk/W-22.png',
@@ -87,22 +99,37 @@ class Character extends MovableObject {
      * in 60 fps i.e 1000/60
      */
     update() {
-    this.prevY = this.y;
-    let idleTime = (new Date().getTime() - this.lastAction) / 500;
-    const k = this.world.keyboard;
-    if (this.isAboveGround() || this.speedY > 0) { this.y -= this.speedY; this.speedY -= this.acceleration; }
-    const maxX = 13000;
-    if (k.RIGHT && this.x < maxX) { this.moveRight(); this.otherDirection = false; this.lastAction = new Date().getTime();}
-    if (k.LEFT && this.x > 0) { this.moveLeft(); this.otherDirection = true; this.lastAction = new Date().getTime();}
-    if (k.UP && !this.isAboveGround()) { this.jump(); this.lastAction = new Date().getTime();}
-    this.world.camera_x = -this.x + 100;
-    if (this.isDead()) return this.playAnimation(this.IMAGES_DEAD);
-    if (this.isHurt()) return this.playAnimation(this.IMAGES_HURT);
-    if (this.isAboveGround()) return this.playAnimation(this.IMAGES_JUMPING);
-    if ((k.RIGHT && this.x < maxX) || (k.LEFT && this.x > 0)) this.playAnimation(this.IMAGES_WALKING);
-    if (idleTime > 5) {return this.playAnimation(this.IMAGES_LONG_IDLE);}
-    if (idleTime > 3) {return this.playAnimation(this.IMAGES_IDLE);}
-}
+        this.prevY = this.y;
+        let idleTime = (new Date().getTime() - this.lastAction) / 500;
+        const k = this.world.keyboard;
+        if (this.isAboveGround() || this.speedY > 0) { this.y -= this.speedY; this.speedY -= this.acceleration; }
+        const maxX = 13000;
+        if (k.RIGHT && this.x < maxX) { this.moveRight(); this.otherDirection = false; this.lastAction = new Date().getTime(); }
+        if (k.LEFT && this.x > 0) { this.moveLeft(); this.otherDirection = true; this.lastAction = new Date().getTime(); }
+        if (k.UP && !this.isAboveGround()) { this.jump(); this.lastAction = new Date().getTime(); }
+        this.world.camera_x = -this.x + 100;
+        if (this.isDead()) return this.playAnimation(this.IMAGES_DEAD);
+        if (this.isHurt()) return this.playAnimationWithSpeed(this.IMAGES_HURT, this.animationSpeed.HURT);
+        if (this.isAboveGround()) return this.playAnimationWithSpeed(this.IMAGES_JUMPING, this.animationSpeed.JUMPING);
+        if ((k.RIGHT && this.x < maxX) || (k.LEFT && this.x > 0)) this.playAnimationWithSpeed(this.IMAGES_WALKING, this.animationSpeed.WALKING);
+        if (idleTime > 1) { return this.playAnimationWithSpeed(this.IMAGES_LONG_IDLE, this.animationSpeed.LONG_IDLE); }
+        if (idleTime > 0.5) { return this.playAnimationWithSpeed(this.IMAGES_IDLE, this.animationSpeed.IDLE); }
+    }
+
+    /**
+     * Function for regulating the character animation speeds, all of the different states are animated on different speeds
+     * to make the game a bit more natural
+     */
+    playAnimationWithSpeed(images, speed) {
+        const now = Date.now();
+        if (now - this.lastFrameTime > speed) {
+            this.currentImageIndex++;
+            if (this.currentImageIndex >= images.length) {
+                this.currentImageIndex = 0;}
+            this.img = this.imageCache[images[this.currentImageIndex]];
+            this.lastFrameTime = now;
+        }
+    }
 
     /**
      * setting the speed on the Y achis to 25 making the character "jump"

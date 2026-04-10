@@ -31,8 +31,8 @@ class Endboss extends MovableObject {
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_HURT);
         this.loadImages(this.IMAGES_DEAD);
+        this.playAnimation(this.IMAGES_WALKING);
         this.x = 1200;
-        this.update();
         this.animationCounter = 0;
         this.animationSpeed = 8;
     }
@@ -40,51 +40,52 @@ class Endboss extends MovableObject {
     /**
      * needed for the initialization of the images of the endboss
      */
-    update() {
+    update(character) {
         this.animationCounter++;
-        setInterval(() => {
-            this.speed = 0.09;
-            if (this.energy <= 0) {
-                this.handleDeath();}
-            else if (this.isRecentlyHurt()) {
-                this.playAnimation(this.IMAGES_HURT); this.speed = 0.12;}
-            else {this.moveLeft();
-                if (this.animationCounter % this.animationSpeed === 0) {
-            this.playAnimation(this.IMAGES_WALKING);}
-            }}, 200);
-    }
-
-    /**
-     * @returns Can only be struck with a bottle, needs two hits to be dead
-     */
-    isRecentlyHurt() {
-        let timePassed = new Date().getTime() - this.lastHit;
-        return timePassed < 600;
-    }
-
-    /**
-     * If EndBoss is dead the animation is going to be played which proceeds with the gameover endscreen
-     */
-    handleDeath() {
-        if (!this.isDeadAnimationPlayed) {
-            this.playAnimation(this.IMAGES_DEAD);
-            this.isDeadAnimationPlayed = true;
-            setTimeout(() => {
-                this.shouldBeRemoved = true;
-            }, 2000);
+        this.speed = 1.68;
+        if (this.energy <= 0) { this.handleDeath();} else if (this.isRecentlyHurt()) {
+            this.playAnimation(this.IMAGES_HURT);
+            this.speed = 1.70;
+        } else if (character) { const dx = character.x - this.x;
+            if (dx < -10) { this.moveLeft(); this.otherDirection = false;
+            } else if (dx > 10) { this.moveRight(); this.otherDirection = true; }
+            if (this.animationCounter % this.animationSpeed === 0) {
+                this.playAnimation(this.IMAGES_WALKING);
+            }
         }
     }
 
-    /**
-     * Endboss registers hit
-     */
-    hit() {
-        if (this.energy <= 0) return;
-        this.energy -= 20;
-        this.lastHit = new Date().getTime();
-        if (this.energy < 0) {
-            this.energy = 0;
-        }
+/**
+ * @returns Can only be struck with a bottle, needs two hits to be dead
+ */
+isRecentlyHurt() {
+    let timePassed = new Date().getTime() - this.lastHit;
+    return timePassed < 600;
+}
+
+/**
+ * If EndBoss is dead the animation is going to be played which proceeds with the gameover endscreen
+ */
+handleDeath() {
+    if (!this.isDeadAnimationPlayed) {
+        this.playAnimation(this.IMAGES_DEAD);
+        this.isDeadAnimationPlayed = true;
+        setTimeout(() => {
+            this.shouldBeRemoved = true;
+        }, 2000);
     }
+}
+
+/**
+ * Endboss registers hit
+ */
+hit() {
+    if (this.energy <= 0) return;
+    this.energy -= 20;
+    this.lastHit = new Date().getTime();
+    if (this.energy < 0) {
+        this.energy = 0;
+    }
+}
 
 }

@@ -28,7 +28,6 @@ function init() {
  */
 function handleResize() {
     let h1 = document.getElementById("h1overview");
-
     if (isMobileDevice()) {
         if (isPortraitMobile()) {
             h1.style.display = "block";

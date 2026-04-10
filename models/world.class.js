@@ -88,7 +88,7 @@ class World {
      */
     updateBoss() {
         if (!this.level.endbossActive) return;
-        this.level.endboss.update();
+        this.level.endboss.update(this.character);
         if (this.level.endboss.energy <= 0)
             this.endGame("won");
     }
@@ -160,8 +160,7 @@ class World {
      */
     hitEnemiesWithBottle(bottle) {
         this.level.getAllEnemies().forEach(enemy => {
-            if (bottle.isColliding(enemy)) { enemy.hit(); bottle.splashBottle(); }
-        });
+            if (bottle.isColliding(enemy)) { enemy.hit(); bottle.splashBottle(); }});
         if (this.level.endbossActive && bottle.isColliding(this.level.endboss)) { this.level.endboss.hit(); bottle.splashBottle(); }
     }
 
@@ -171,16 +170,13 @@ class World {
     checkCollections() {
         this.collectItems(this.level.groundBottles, () => {
             this.character.bottleCount = Math.min(5, this.character.bottleCount + 1);
-            this.statusBarFlask.setPercentage(this.character.bottleCount * 20)
-        });
+            this.statusBarFlask.setPercentage(this.character.bottleCount * 20)});
         this.collectItems(this.level.coin, () => {
             this.character.coinCount = Math.min(5, this.character.coinCount + 1);
-            this.statusBarCoin.setPercentage(this.character.coinCount * 20)
-        });
+            this.statusBarCoin.setPercentage(this.character.coinCount * 20)});
         this.collectItems(this.level.heart, () => {
             this.character.energy = Math.min(100, this.character.energy + 20);
-            this.statusBar.setPercentage(this.character.energy)
-        });
+            this.statusBar.setPercentage(this.character.energy)});
     }
 
     /**
@@ -193,10 +189,7 @@ class World {
             const char = this.character;
             const collided = char.x + char.width > item.x + bufferX && char.x < item.x + item.width - bufferX && char.y + char.height > item.y + bufferY &&
                 char.y < item.y + item.height - bufferY;
-            if (collided) {
-                onCollect();
-                array.splice(index, 1);
-            }
+            if (collided) { onCollect(); array.splice(index, 1);}
         });
     }
 
@@ -252,12 +245,13 @@ class World {
      * "reloads" the game when the user clicks on the restart game by reloading the world instead of reloading the page 
      */
     restartGame() {
-        this.canvas.removeEventListener("pointerdown", this.handleEndClick);
-        world = new World(this.canvas, this.keyboard, this.audio);
-        phone = new Phone(this.keyboard, this.canvas, world);
-        phone.checkAndShowMobileButtons();
-        this.audio.playMusic("ingame");
-    }
+    this.canvas.removeEventListener("pointerdown", this.handleEndClick);
+    world = new World(this.canvas, this.keyboard, this.audio);
+    phone = new Phone(this.keyboard, this.canvas, world);
+    phone.checkAndShowMobileButtons();
+    phone.enableControlsWithDelay(1000);
+    this.audio.playMusic("ingame");
+}
 
     /**
      * redirects the user back to main menu 

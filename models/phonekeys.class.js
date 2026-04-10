@@ -10,12 +10,16 @@ class Phone extends MovableObject {
         this.init();
         this.soundMuted = false;
         this.isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        this.controlsEnabled = false;
         document.addEventListener('fullscreenchange', () => {
-            this.onFullscreenChange();});
+            this.onFullscreenChange();
+        });
         window.addEventListener('resize', () => {
-            this.checkAndShowMobileButtons();});
+            this.checkAndShowMobileButtons();
+        });
         window.addEventListener('orientationchange', () => {
-            this.checkAndShowMobileButtons();});
+            this.checkAndShowMobileButtons();
+        });
         this.checkAndShowMobileButtons();
     }
 
@@ -66,6 +70,16 @@ class Phone extends MovableObject {
     }
 
     /**
+     * A small delay function for delaying the phone keys after the world is created to prevent mistype 
+     */
+    enableControlsWithDelay(delay = 1000) {
+        this.controlsEnabled = false;
+        setTimeout(() => {
+            this.controlsEnabled = true;
+        }, delay);
+    }
+
+    /**
      * Function that assignes the HTML keys and its functions using pointerups and downs, also chaging the sound and fullscreen icons
      */
     setupMobileControls(keyboard, world) {
@@ -78,6 +92,7 @@ class Phone extends MovableObject {
         [["btn-left", "LEFT"], ["btn-right", "RIGHT"], ["btn-up", "UP"], ["btn-space", "SPACE"]]
             .forEach(([id, key]) => bind(id, key));
         document.getElementById("btn-fullscreen").onclick = () => {
+            if (!this.controlsEnabled) return;
             const container = document.getElementById("game-container");
             const img = document.getElementById("img-fullscreen");
 
@@ -90,6 +105,7 @@ class Phone extends MovableObject {
             }
         };
         document.getElementById("btn-sound").onclick = () => {
+            if (!this.controlsEnabled) return;
             world.audio.toggleMute();
             document.getElementById("img-sound").src = world.audio.muted ? "img/sound-mute.svg" : "img/sound-max.svg";
         };
