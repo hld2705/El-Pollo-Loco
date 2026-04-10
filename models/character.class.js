@@ -8,7 +8,7 @@ class Character extends MovableObject {
 
     animationSpeed = {
         WALKING: 120,
-        JUMPING: 140,
+        JUMPING: 150,
         IDLE: 220,
         LONG_IDLE: 320,
         HURT: 160,
@@ -35,7 +35,8 @@ class Character extends MovableObject {
         'img/2_character_pepe/3_jump/J-35.png',
         'img/2_character_pepe/3_jump/J-36.png',
         'img/2_character_pepe/3_jump/J-37.png',
-        'img/2_character_pepe/3_jump/J-38.png'
+        'img/2_character_pepe/3_jump/J-38.png',
+        'img/2_character_pepe/3_jump/J-39.png'
     ]
 
     IMAGES_DEAD = [
@@ -103,7 +104,7 @@ class Character extends MovableObject {
         let idleTime = (new Date().getTime() - this.lastAction) / 500;
         const k = this.world.keyboard;
         if (this.isAboveGround() || this.speedY > 0) { this.y -= this.speedY; this.speedY -= this.acceleration; }
-        const maxX = 13000;
+        const maxX = 1500;
         if (k.RIGHT && this.x < maxX) { this.moveRight(); this.otherDirection = false; this.lastAction = new Date().getTime(); }
         if (k.LEFT && this.x > 0) { this.moveLeft(); this.otherDirection = true; this.lastAction = new Date().getTime(); }
         if (k.UP && !this.isAboveGround()) { this.jump(); this.lastAction = new Date().getTime(); }

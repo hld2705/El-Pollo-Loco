@@ -159,10 +159,15 @@ class World {
      * Hitboxes needed for hitting the enemy with a solsa bottle, and also to display the splash animation
      */
     hitEnemiesWithBottle(bottle) {
-        this.level.getAllEnemies().forEach(enemy => {
-            if (bottle.isColliding(enemy)) { enemy.hit(); bottle.splashBottle(); }});
-        if (this.level.endbossActive && bottle.isColliding(this.level.endboss)) { this.level.endboss.hit(); bottle.splashBottle(); }
+    this.level.getAllEnemies().forEach(enemy => {
+        if (enemy === this.level.endboss) return;
+        if (bottle.isColliding(enemy)) { enemy.hit(); bottle.splashBottle(); }});
+    if (this.level.endbossActive && bottle.isColliding(this.level.endboss) && !bottle.hasHitBoss) {
+        bottle.hasHitBoss = true;
+        this.level.endboss.hit(); 
+        bottle.splashBottle(); 
     }
+}
 
     /**
      * Registers the collection and updates the statusbars

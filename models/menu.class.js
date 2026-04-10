@@ -60,7 +60,6 @@ class Menu {
    */
   handleClick(e) {
     if (!showMenu) return;
-
     const rect = this.canvas.getBoundingClientRect();
     const mouseX = (e.clientX - rect.left) * (this.canvas.width / rect.width);
     const mouseY = (e.clientY - rect.top) * (this.canvas.height / rect.height);

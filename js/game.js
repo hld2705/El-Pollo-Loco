@@ -136,3 +136,25 @@ window.addEventListener("keyup", (e) => {
         keyboard.SPACE = false;
     }
 });
+
+/**
+ * Helper function for chrome browser, using SPACE to throw bottles unmutes/mutes the sound(because the focus is there when pressing play)
+ * So i added eventlisteners to prevent that from happening
+ */
+window.addEventListener("keydown", (e) => {
+    if (e.keyCode == 32) {
+        e.preventDefault();
+        keyboard.SPACE = true;
+    }
+});
+
+/**
+ * Helper function for chrome browser, using SPACE to throw bottles unmutes/mutes the sound(because the focus is there when pressing play)
+ * So i added eventlisteners to prevent that from happening
+ */
+window.addEventListener("keyup", (e) => {
+    if (e.keyCode == 32) {
+        e.preventDefault();
+        keyboard.SPACE = false;
+    }
+});

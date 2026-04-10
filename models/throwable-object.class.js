@@ -36,6 +36,7 @@ class ThrowableObject extends MovableObject {
         this.height = 100;
         this.width = 70;
         this.otherDirection = otherDirection;
+        this.hasHitBoss = false;
         this.throw();
     }
 

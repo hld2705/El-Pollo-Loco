@@ -43,9 +43,9 @@ class Endboss extends MovableObject {
     update(character) {
         this.animationCounter++;
         this.speed = 1.68;
-        if (this.energy <= 0) { this.handleDeath();} else if (this.isRecentlyHurt()) {
-            this.playAnimation(this.IMAGES_HURT);
-            this.speed = 1.70;
+        if (this.energy <= 0) { this.handleDeath();}  else if (this.isRecentlyHurt()) {
+        if (this.animationCounter % this.animationSpeed === 0) {
+            this.playAnimation(this.IMAGES_HURT);}
         } else if (character) { const dx = character.x - this.x;
             if (dx < -10) { this.moveLeft(); this.otherDirection = false;
             } else if (dx > 10) { this.moveRight(); this.otherDirection = true; }
@@ -81,7 +81,7 @@ handleDeath() {
  */
 hit() {
     if (this.energy <= 0) return;
-    this.energy -= 20;
+    this.energy -= 34;
     this.lastHit = new Date().getTime();
     if (this.energy < 0) {
         this.energy = 0;

@@ -52,18 +52,17 @@ class Phone extends MovableObject {
      * Function for checking when the mobile phone is tilted and not, also when the user wins or looses to show/hide the buttons
      */
     checkAndShowMobileButtons() {
-        const isResponsive = window.innerWidth < 900;
-        const isLandscape = window.innerWidth > window.innerHeight;
-        const shouldShowMovement = (isResponsive && isLandscape) || document.fullscreenElement;
-        const topControls = document.getElementById('top-controls');
-        if (topControls) { topControls.style.display = 'flex'; }
-        ['left-controls', 'right-controls'].forEach(id => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.style.display = shouldShowMovement ? 'flex' : 'none';
-            }
-        });
-    }
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const shouldShowMovement = isTouchDevice || document.fullscreenElement;
+    const topControls = document.getElementById('top-controls');
+    if (topControls) { topControls.style.display = 'flex'; }
+    ['left-controls', 'right-controls'].forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.style.display = shouldShowMovement ? 'flex' : 'none';
+        }
+    });
+}
 
     /**
      * A small delay function for delaying the phone keys after the world is created to prevent mistype 
@@ -217,15 +216,12 @@ class Phone extends MovableObject {
     /**
     * Changes the icon and mutes the sound of the game
     */
-    toggleSound() {
-        this.world.audio.toggleMute();
-        const img = document.getElementById("img-sound");
-        if (this.world.audio.muted) {
-            img.src = "img/sound-mute.svg";
-        } else {
-            img.src = "img/sound-max.svg";
-        }
-    }
+  toggleSound() {
+    this.world.audio.toggleMute();
+    const img = document.getElementById("img-sound");
+    const isMuted = localStorage.getItem("gameMuted") === "true";
+    img.src = isMuted ? "img/sound-max.svg" : "img/sound-mute.svg";
+}
 
 
     /**
