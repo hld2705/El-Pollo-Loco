@@ -7,19 +7,17 @@ class Phone extends MovableObject {
         this.world = world;
         this.size = 50;
         this.buttons = {};
+        this.domListeners = [];
         this.init();
         this.soundMuted = false;
         this.isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
         this.controlsEnabled = false;
-        document.addEventListener('fullscreenchange', () => {
-            this.onFullscreenChange();
-        });
-        window.addEventListener('resize', () => {
-            this.checkAndShowMobileButtons();
-        });
-        window.addEventListener('orientationchange', () => {
-            this.checkAndShowMobileButtons();
-        });
+        this.fullscreenListener = this.onFullscreenChange.bind(this);
+        this.resizeListener = this.checkAndShowMobileButtons.bind(this);
+        this.orientationListener = this.checkAndShowMobileButtons.bind(this);
+        document.addEventListener('fullscreenchange', this.fullscreenListener);
+        window.addEventListener('resize', this.resizeListener);
+        window.addEventListener('orientationchange', this.orientationListener);
         this.checkAndShowMobileButtons();
     }
 
@@ -28,7 +26,6 @@ class Phone extends MovableObject {
      */
     onFullscreenChange() {
         const container = document.getElementById("game-container");
-
         if (document.fullscreenElement) {
             this.canvas.width = window.innerWidth;
             this.canvas.height = window.innerHeight;
@@ -40,7 +37,6 @@ class Phone extends MovableObject {
             container.style.width = "fit-content";
             container.style.height = "auto";
         }
-
         this.checkAndShowMobileButtons();
     }
 
@@ -72,7 +68,8 @@ class Phone extends MovableObject {
     /**
      * A small delay function for delaying the phone keys after the world is created to prevent mistype 
      */
-    enableControlsWithDelay(delay = 1000) {
+    enableControlsWithDelay(delay = 2000) {
+        this.resetKeys();
         this.controlsEnabled = false;
         setTimeout(() => {
             this.controlsEnabled = true;
@@ -82,33 +79,38 @@ class Phone extends MovableObject {
     /**
      * Function that assignes the HTML keys and its functions using pointerups and downs, also chaging the sound and fullscreen icons
      */
-    setupMobileControls(keyboard, world) {
-        const bind = (id, key) => {
+    setupMobileControls() {
+        const map = { 'btn-left': 'LEFT', 'btn-right': 'RIGHT', 'btn-up': 'UP', 'btn-space': 'SPACE' };
+        for (let id in map) {
             const el = document.getElementById(id);
-            if (!el) return;
-            el.onpointerdown = () => keyboard[key] = true;
-            el.onpointerup = el.onpointerleave = el.onpointercancel = () => keyboard[key] = false;
-        };
-        [["btn-left", "LEFT"], ["btn-right", "RIGHT"], ["btn-up", "UP"], ["btn-space", "SPACE"]]
-            .forEach(([id, key]) => bind(id, key));
-        document.getElementById("btn-fullscreen").onclick = () => {
-            if (!this.controlsEnabled) return;
-            const container = document.getElementById("game-container");
-            const img = document.getElementById("img-fullscreen");
+            if (!el) continue;
+            const down = e => { if (!this.controlsEnabled) return; e.preventDefault(); this.keyboard[map[id]] = true; el.setPointerCapture(e.pointerId); };
+            const up = () => this.keyboard[map[id]] = false;
+            ['pointerdown', 'pointerup', 'pointercancel', 'lostpointercapture']
+                .forEach((t, i) => el.addEventListener(t, i ? up : down));
+            this.domListeners.push({ target: el, type: 'pointerdown', fn: down });
+            this.domListeners.push({ target: el, type: 'pointerup', fn: up });
+            this.domListeners.push({ target: el, type: 'pointercancel', fn: up });
+            this.domListeners.push({ target: el, type: 'lostpointercapture', fn: up });
+        }
 
-            if (document.fullscreenElement) {
-                document.exitFullscreen();
-                img.src = "img/fullscreen.svg";
-            } else {
-                container.requestFullscreen();
-                img.src = "img/fullscreen-exit.svg";
-            }
-        };
-        document.getElementById("btn-sound").onclick = () => {
-            if (!this.controlsEnabled) return;
-            world.audio.toggleMute();
-            document.getElementById("img-sound").src = world.audio.muted ? "img/sound-mute.svg" : "img/sound-max.svg";
-        };
+        this.topButtonsDelay();
+    }
+
+    /**
+     * Delays intentionally the top buttons of the screen preventing misclick
+     */
+    topButtonsDelay() {
+        setTimeout(() => {
+            [['btn-fullscreen', () => this.toggleFullscreen()],
+            ['btn-sound', () => this.toggleSound()]]
+                .forEach(([id, fn]) => {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    el.addEventListener('click', fn);
+                    this.domListeners.push({ target: el, type: 'click', fn });
+                });
+        }, 1000);
     }
 
     /**
@@ -127,9 +129,21 @@ class Phone extends MovableObject {
      * Function needed to destroy all of the listeners
      */
     destroy() {
-        if (this.pointerDownHandler) this.canvas.removeEventListener('pointerdown', this.pointerDownHandler);
-        if (this.pointerUpHandler) this.canvas.removeEventListener('pointerup', this.pointerUpHandler);
-        if (this.pointerCancelHandler) this.canvas.removeEventListener('pointercancel', this.pointerCancelHandler);
+        this.resetKeys();
+        if (this.pointerDownHandler)
+            this.canvas.removeEventListener('pointerdown', this.pointerDownHandler);
+        if (this.pointerUpHandler)
+            this.canvas.removeEventListener('pointerup', this.pointerUpHandler);
+        if (this.pointerCancelHandler)
+            this.canvas.removeEventListener('pointercancel', this.pointerCancelHandler);
+        if (this.fullscreenListener)
+            document.removeEventListener('fullscreenchange', this.fullscreenListener);
+        if (this.resizeListener)
+            window.removeEventListener('resize', this.resizeListener);
+        if (this.orientationListener)
+            window.removeEventListener('orientationchange', this.orientationListener);
+        this.domListeners.forEach(({ target, type, fn }) => target.removeEventListener(type, fn));
+        this.domListeners = [];
     }
 
     /**

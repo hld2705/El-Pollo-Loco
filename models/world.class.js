@@ -246,7 +246,9 @@ class World {
      */
     restartGame() {
     this.canvas.removeEventListener("pointerdown", this.handleEndClick);
+    this.keyboard.LEFT = this.keyboard.RIGHT = this.keyboard.UP = this.keyboard.SPACE = false;
     world = new World(this.canvas, this.keyboard, this.audio);
+    if (phone) { phone.destroy(); phone = null; }
     phone = new Phone(this.keyboard, this.canvas, world);
     phone.checkAndShowMobileButtons();
     phone.enableControlsWithDelay(1000);
@@ -258,10 +260,7 @@ class World {
      */
     mainMenu() {
         this.canvas.removeEventListener("pointerdown", this.handleEndClick);
-        if (phone) {
-            phone.destroy();
-            phone = null;
-        }
+        if (phone) { phone.destroy(); phone = null; }
         showMenu = true;
         world = null;
         menu = new Menu(this.canvas, this.audio);

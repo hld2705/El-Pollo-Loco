@@ -29,7 +29,8 @@ class Menu {
    */
   draw(ctx) {
     if (this.bgImage.complete) {
-      ctx.drawImage(this.bgImage, 0, 0, 720, 480);}
+      ctx.drawImage(this.bgImage, 0, 0, 720, 480);
+    }
     ctx.textAlign = "center";
     ctx.font = "32px Sancreek";
     const y = 60;
@@ -59,26 +60,47 @@ class Menu {
    */
   handleClick(e) {
     if (!showMenu) return;
+
     const rect = this.canvas.getBoundingClientRect();
-    const scaleX = this.canvas.width / rect.width;
-    const scaleY = this.canvas.height / rect.height;
-    const mouseX = (e.clientX - rect.left) * scaleX;
-    const mouseY = (e.clientY - rect.top) * scaleY;
-    if (mouseX > this.x + 240 - 110 && mouseX < this.x + 240 + 110 && mouseY > 60 - 25 && mouseY < 60 + 25) {
-      this.destroy(); showMenu = false;
-      document.getElementById("top-controls").style.display = "block";
-      document.getElementById("left-controls").style.display = "block";
-      document.getElementById("right-controls").style.display = "block";
-      world = new World(canvas, keyboard, this.audio);
-      phone = new Phone(keyboard, canvas, world);
-      phone.checkAndShowMobileButtons();
-      phone.enableControlsWithDelay(1000)
-      console.log("Phone initialized");
-      this.audio.playMusic("ingame");
-    } if (mouseX > this.x - 110 && mouseX < this.x + 110 && mouseY > 60 - 25 && mouseY < 60 + 25) { this.destroy();
-      menu = new Tutorial(this.canvas, this.audio);
-    } if (mouseX > this.x - 240 - 110 && mouseX < this.x - 240 + 110 && mouseY > 60 - 25 && mouseY < 60 + 25) { this.destroy();
-      menu = new Impressum(this.canvas, this.audio);}
+    const mouseX = (e.clientX - rect.left) * (this.canvas.width / rect.width);
+    const mouseY = (e.clientY - rect.top) * (this.canvas.height / rect.height);
+    const isOver = (x, y, w, h) => mouseX > x - w / 2 && mouseX < x + w / 2 && mouseY > y - h / 2 && mouseY < y + h / 2;
+    if (isOver(this.x + 240, 60, 220, 50)) this.startGame();
+    if (isOver(this.x, 60, 220, 50)) this.goToTutorial();
+    if (isOver(this.x - 240, 60, 220, 50)) this.goToImpressum();
+  }
+
+  /**
+   * Starts the game when in menu after one lost or won game
+   */
+  startGame() {
+    this.destroy();
+    showMenu = false;
+    document.getElementById("top-controls").style.display = "block";
+    document.getElementById("left-controls").style.display = "block";
+    document.getElementById("right-controls").style.display = "block";
+    world = new World(canvas, keyboard, this.audio);
+    if (phone) { phone.destroy(); phone = null; }
+    phone = new Phone(keyboard, canvas, world);
+    phone.checkAndShowMobileButtons();
+    phone.enableControlsWithDelay(1000);
+    this.audio.playMusic("ingame");
+  }
+
+  /**
+   * Helper function guiding the user to tutorial page
+   */
+  goToTutorial() {
+    this.destroy();
+    menu = new Tutorial(this.canvas, this.audio);
+  }
+
+  /**
+   * Helper function guiding the user to impressum page
+   */
+  goToImpressum() {
+    this.destroy();
+    menu = new Impressum(this.canvas, this.audio);
   }
 
   /**
@@ -121,12 +143,15 @@ class Menu {
     const mouseX = (e.clientX - rect.left) * scaleX;
     const mouseY = (e.clientY - rect.top) * scaleY;
     if (mouseX > this.x + 240 - 110 && mouseX < this.x + 240 + 110 && mouseY > 60 - 25 && mouseY < 60 + 25) {
-      return true;}
+      return true;
+    }
     if (mouseX > this.x - 110 && mouseX < this.x + 110 && mouseY > 60 - 25 && mouseY < 60 + 25) {
-      return true;}
+      return true;
+    }
     if (mouseX > this.x - 240 - 110 && mouseX < this.x - 240 + 110 && mouseY > 60 - 25 && mouseY < 60 + 25) {
-      return true;}
-      return false;
+      return true;
+    }
+    return false;
   }
 
 }
