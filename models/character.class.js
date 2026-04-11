@@ -93,6 +93,8 @@ class Character extends MovableObject {
         this.loadImages(this.IMAGES_IDLE);
         this.loadImages(this.IMAGES_LONG_IDLE);
         this.applyGravity();
+        this.canThrow = true;
+        this.throwCooldown = 1000;
     }
 
     /**
@@ -101,7 +103,7 @@ class Character extends MovableObject {
      */
     update() {
         this.prevY = this.y;
-        let idleTime = (new Date().getTime() - this.lastAction) / 500;
+        let idleTime = (new Date().getTime() - this.lastAction) / 1000;
         const k = this.world.keyboard;
         if (this.isAboveGround() || this.speedY > 0) { this.y -= this.speedY; this.speedY -= this.acceleration; }
         const maxX = 1500;
@@ -113,8 +115,8 @@ class Character extends MovableObject {
         if (this.isHurt()) return this.playAnimationWithSpeed(this.IMAGES_HURT, this.animationSpeed.HURT);
         if (this.isAboveGround()) return this.playAnimationWithSpeed(this.IMAGES_JUMPING, this.animationSpeed.JUMPING);
         if ((k.RIGHT && this.x < maxX) || (k.LEFT && this.x > 0)) this.playAnimationWithSpeed(this.IMAGES_WALKING, this.animationSpeed.WALKING);
-        if (idleTime > 1) { return this.playAnimationWithSpeed(this.IMAGES_LONG_IDLE, this.animationSpeed.LONG_IDLE); }
-        if (idleTime > 0.5) { return this.playAnimationWithSpeed(this.IMAGES_IDLE, this.animationSpeed.IDLE); }
+        if (idleTime > 2.5) { return this.playAnimationWithSpeed(this.IMAGES_LONG_IDLE, this.animationSpeed.LONG_IDLE); }
+        if (idleTime > 1) { return this.playAnimationWithSpeed(this.IMAGES_IDLE, this.animationSpeed.IDLE); }
     }
 
     /**
@@ -126,10 +128,23 @@ class Character extends MovableObject {
         if (now - this.lastFrameTime > speed) {
             this.currentImageIndex++;
             if (this.currentImageIndex >= images.length) {
-                this.currentImageIndex = 0;}
+                this.currentImageIndex = 0;
+            }
             this.img = this.imageCache[images[this.currentImageIndex]];
             this.lastFrameTime = now;
         }
+    }
+
+    /**
+     * Checks if the character can throw a bottle
+     */
+    canThrowBottle() {
+        if (!this.canThrow) return false;
+        this.canThrow = false;
+        setTimeout(() => {
+            this.canThrow = true;
+        }, this.throwCooldown);
+        return true;
     }
 
     /**

@@ -203,6 +203,7 @@ class World {
      */
     checkThrowing() {
         if (!this.keyboard.SPACE || this.character.bottleCount <= 0) return;
+        if (!this.character.canThrowBottle()) return;
         if (this.lastThrow && Date.now() - this.lastThrow < 300) return;
         this.lastThrow = Date.now()
         const bottle = new ThrowableObject(

@@ -43,9 +43,9 @@ class Endboss extends MovableObject {
     update(character) {
         this.animationCounter++;
         this.speed = 1.68;
-        if (this.energy <= 0) { this.handleDeath();}  else if (this.isRecentlyHurt()) {
-        if (this.animationCounter % this.animationSpeed === 0) {
-            this.playAnimation(this.IMAGES_HURT);}
+        if (this.energy <= 0) { this.handleDeath(); } else if (this.isRecentlyHurt()) {
+            if (this.animationCounter % this.animationSpeed === 0) {
+                this.playAnimation(this.IMAGES_HURT);}
         } else if (character) { const dx = character.x - this.x;
             if (dx < -10) { this.moveLeft(); this.otherDirection = false;
             } else if (dx > 10) { this.moveRight(); this.otherDirection = true; }
@@ -55,37 +55,37 @@ class Endboss extends MovableObject {
         }
     }
 
-/**
- * @returns Can only be struck with a bottle, needs two hits to be dead
- */
-isRecentlyHurt() {
-    let timePassed = new Date().getTime() - this.lastHit;
-    return timePassed < 600;
-}
-
-/**
- * If EndBoss is dead the animation is going to be played which proceeds with the gameover endscreen
- */
-handleDeath() {
-    if (!this.isDeadAnimationPlayed) {
-        this.playAnimation(this.IMAGES_DEAD);
-        this.isDeadAnimationPlayed = true;
-        setTimeout(() => {
-            this.shouldBeRemoved = true;
-        }, 2000);
+    /**
+     * @returns Can only be struck with a bottle, needs two hits to be dead
+     */
+    isRecentlyHurt() {
+        let timePassed = new Date().getTime() - this.lastHit;
+        return timePassed < 600;
     }
-}
 
-/**
- * Endboss registers hit
- */
-hit() {
-    if (this.energy <= 0) return;
-    this.energy -= 34;
-    this.lastHit = new Date().getTime();
-    if (this.energy < 0) {
-        this.energy = 0;
+    /**
+     * If EndBoss is dead the animation is going to be played which proceeds with the gameover endscreen
+     */
+    handleDeath() {
+        if (!this.isDeadAnimationPlayed) {
+            this.playAnimation(this.IMAGES_DEAD);
+            this.isDeadAnimationPlayed = true;
+            setTimeout(() => {
+                this.shouldBeRemoved = true;
+            }, 2000);
+        }
     }
-}
+
+    /**
+     * Endboss registers hit
+     */
+    hit() {
+        if (this.energy <= 0) return;
+        this.energy -= 20;
+        this.lastHit = new Date().getTime();
+        if (this.energy < 0) {
+            this.energy = 0;
+        }
+    }
 
 }
