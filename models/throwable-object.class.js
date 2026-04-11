@@ -37,6 +37,8 @@ class ThrowableObject extends MovableObject {
         this.width = 70;
         this.otherDirection = otherDirection;
         this.hasHitBoss = false;
+        this.startX = x;
+        this.maxDistance = 180;
         this.throw();
     }
 
@@ -48,13 +50,12 @@ class ThrowableObject extends MovableObject {
         this.applyGravity();
         this.throwIntervalBottle = setInterval(() => {
             if (!this.isSplashing) {
-                if (this.otherDirection) {
-                    this.x -= 10;
-                } else {
-                    this.x += 10;
-                }
-            }
-        }, 25);
+                if (this.otherDirection) {this.x -= 10;
+                } else { this.x += 10;}
+                if (Math.abs(this.x - this.startX) > this.maxDistance) {
+                    clearInterval(this.throwIntervalBottle);
+                    this.isSplashing = true;
+                    this.speedY = 0;}}}, 25);
     }
 
     /**
